@@ -150,26 +150,43 @@ export default function BoxMaker(cfg) {
   }
 
   ob.transform3D = function(ind) {
+    const xOff = -ob.dimW/2,
+          yOff = -ob.dimH/2,
+          zOff = ob.dimL/2
+
     switch (ind) {
       case FACE_FRONT:
-        return [  // rotate 90d about x
-          1, 0, 0,  0,
-          0, 0, -1, ob.thickness,
-          0, 1, 0,  0
+        return [
+          1, 0, 0, xOff,
+          0, 1, 0, yOff,
+          0, 0, 1, zOff-ob.thickness
         ];
       case FACE_BACK:
-        return [  // rotate 90d about x
-          1, 0, 0,  0,
-          0, 0, -1, ob.dimL,
-          0, 1, 0,  0
+        return [
+          1, 0, 0, xOff,
+          0, 1, 0, yOff,
+          0, 0, 1, zOff-ob.dimL
         ];
       case FACE_LEFT:
-      default:
         return [
-          1, 0, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 1, 0
+          0, 0, 1, xOff,
+          0, 1, 0, yOff,
+         -1, 0, 0, zOff
         ];
+      case FACE_RIGHT:
+        return [
+          0, 0, 1, xOff+ob.dimW-ob.thickness,
+          0, 1, 0, yOff,
+         -1, 0, 0, zOff
+        ];
+      case FACE_BOTTOM:
+        return [
+          1, 0, 0, xOff,
+          0, 0, 1, yOff,
+          0, -1, 0, zOff
+        ];
+      default:
+        throw new Error(`Unknown index: ${ind}`);
     }
   }
 
