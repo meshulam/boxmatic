@@ -18,3 +18,7 @@ main > * {
 footer {
 
 }
+
+input.invalid {
+  background-color: orange;
+}

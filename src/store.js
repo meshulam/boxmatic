@@ -2,18 +2,32 @@
 const state = {};
 const subscribers = [];
 
+// Returns a shallow copy of the state object
 function get() {
-  return state;
+  return Object.assign({}, state);
 }
 
 function update(newCfg) {
-  Object.assign(state, newCfg);
-  // TODO: detect when no changes were made
-  subscribers.forEach(subscriber => {
-    console.log("Calling subscriber on state change")
-    subscriber(state);
+  let changed = false;
+
+  // detect when no changes were made (should mostly work)
+  Object.keys(newCfg).forEach((key) => {
+    const newVal = newCfg[key];
+    if (newVal !== state[key] &&
+        JSON.stringify(newVal) !== JSON.stringify(state[key])) {
+      state[key] = newVal;
+      changed = true;
+    }
   });
+
+  if (changed) {
+    subscribers.forEach(subscriber => {
+      console.log("Calling subscriber on state change")
+      subscriber(state);
+    });
+  }
 }
+
 
 function subscribe(subscriber) {
   if (subscribers.indexOf(subscriber) < 0) {

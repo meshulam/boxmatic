@@ -18,8 +18,58 @@
       </ul>
     </header>
     <main>
-      <div id="app" class="form">
+      <div id="editor" class="form">
+        <h2>Design a box!</h2>
+        <div class="presets">
+          <h3>Choose from a preset:</h3>
+          <ul>
+            <li>
+              <button data-preset="vinyl">
+                Record crate
+              </button>
+            </li>
+            <li>
+              <button data-preset="underbed">
+                Under-bed storage
+              </button>
+            </li>
+            <li>
+              <button data-preset="eurorack">
+                Eurorack enclosure
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="customize">
+          <h3>Customize</h3>
+          <div class="fields dimensions">
+            <label>
+              Length:
+              <input type="text" data-input-kind="dim" data-field="dimL" />
+            </label>
+            <label>
+              Width:
+              <input type="text" data-input-kind="dim" data-field="dimW" />
+            </label>
+            <label>
+              Height:
+              <input type="text" data-input-kind="dim" data-field="dimH" />
+            </label>
+          </div>
+          <div class="fields advanced">
+            <label>
+              Material thickness
+              <input type="text" data-input-kind="dim" data-field="thickness" />
+            </label>
+          </div>
+        </div>
+        <div class="output">
+          <button data-action="saveSvg">
+            Download SVG pattern
+          </button>
+        </div>
       </div>
+
       <div id="preview-3d">
       </div>
     </main>

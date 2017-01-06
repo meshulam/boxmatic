@@ -1,6 +1,14 @@
 import Store from './store';
 import BoxMaker from './boxmaker';
-import * as ThreeOrbit from 'three/examples/js/controls/OrbitControls';
+import * as DimUtil from './util/dimension';
+
+import 'three/examples/js/controls/OrbitControls';
+
+const {
+  Camera,
+  Matrix4,
+  Vector3,
+} = THREE;
 
 // Requires globals:
 // addEventListener
@@ -31,6 +39,13 @@ function toThreeMatrix(matArray) {
   return m;
 }
 
+// How far away does the camera need to be to fully show the object?
+// 
+function cameraDollyTo(fov, l, w, h) {
+  const radius = Math.sqrt(l*l + w*w + h*h) / 2;
+  return Math.atan(fov/2) * radius;
+}
+
 /*
 let material = new THREE.MeshPhongMaterial({
   color: 0x156289,
@@ -42,7 +57,8 @@ let material = new THREE.MeshPhongMaterial({
 
 export default function ThreeView(cfg) {
   const ob = {
-    boxCfg: Store.get(),
+    boxCfg: {},
+    boxCfgNorm: {},   // copy of boxCfg with dimensions converted to normalized numbers
     el: undefined,
   };
 
@@ -56,9 +72,26 @@ export default function ThreeView(cfg) {
     renderer.render(scene, camera);
   }
 
+  // Called when the store updates
+  ob.updateState = function(state) {
+    ob.boxCfg = state;
+
+    ob.boxCfgNorm = Object.keys(state).reduce((acc, key) => {
+      acc[key] = DimUtil.norm(state[key]) || state[key];
+      return acc;
+    }, {});
+
+
+
+    ob.render();
+  }
+
   ob.setupScene = function() {
     const orbit = new THREE.OrbitControls(camera, renderer.domElement);
     orbit.enableZoom = false;
+
+    camera.position.set(-20, 40, 80);
+    camera.lookAt(new Vector3());
 
     const lights = [];
     lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
@@ -94,7 +127,8 @@ export default function ThreeView(cfg) {
 
   let meshes = [];
   ob.render = function() {
-    console.log("Rendering with config ", ob.boxCfg);
+    const cfg = ob.boxCfgNorm;
+    console.log("Rendering with config ", cfg);
     const bom = BoxMaker(ob.boxCfg);
 
     // Remove old meshes
@@ -110,13 +144,16 @@ export default function ThreeView(cfg) {
     });
     scene.add(...meshes);
 
+    camera.lookAt(new Vector3());
+    camera.position.setLength(
+      1.5*cameraDollyTo(camera.fov, cfg.dimL, cfg.dimH, cfg.dimW)
+    );
+
     if (typeof reqFrame !== 'undefined') {
       cancelAnimationFrame(reqFrame)
     }
     threeRender();  // kick off render cycle TODO: need to un-requestAnimationFrame?
   }
-
-  camera.position.z = 20;
 
   renderer.setClearColor(0x000000, 1);
 
@@ -128,10 +165,9 @@ export default function ThreeView(cfg) {
 
   ob.setupScene();
 
-  Store.subscribe((state) => {
-    ob.boxCfg = state;
-    ob.render();
-  });
+  // Kick off the initial render
+  ob.updateState(Store.get());
+  Store.subscribe(ob.updateState);
 
   return ob;
 }

@@ -49,8 +49,8 @@ export function parse(dimString, defaultUnit) {
 
   if (typeof dimString === 'string') {
     const num = parseFloat(dimString);  // Ignores trailing chars
-    const res = /(\w+)\s*$/.exec(dimString);
-    const unit = (res && res[1] && UNIT.hasOwnProperty(res[1])) ?
+    const res = /([A-Za-z]+)\s*$/.exec(dimString);
+    const unit = (res && res[1] && UNIT.hasOwnProperty(res[1].toLowerCase())) ?
       res[1] : defaultUnit;
 
     if (num && unit) {
