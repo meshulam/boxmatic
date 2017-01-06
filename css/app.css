@@ -1,0 +1,20 @@
+
+body > header {
+
+}
+
+main {
+  display: flex;
+  align-items: stretch;
+  min-height: 400px;
+
+}
+
+main > * {
+  flex: 1;
+
+}
+
+footer {
+
+}

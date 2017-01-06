@@ -1,5 +1,5 @@
 import ClipperLib from '../vendor/clipper';
-import {Pt} from './path';
+import {Pt} from './util/path';
 
 // Number of discrete steps per real world unit (mm or inch)
 export const SCALE_INTERNAL = 10000;

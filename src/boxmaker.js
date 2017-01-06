@@ -1,5 +1,6 @@
 import ClipperWrapper from './clip';
-import * as Path from './path';
+import * as Path from './util/path';
+import * as DimUtil from './util/dimension';
 
 // Internal constants for making iterating over faces easier
 const EDGE_SOLO = 0,
@@ -28,6 +29,16 @@ export default function BoxMaker(cfg) {
     thickness: cfg.thickness,
     toothWidth: cfg.toothWidth || cfg.thickness * 2
   };
+
+  if (typeof ob.dimL !== 'number') {
+    ob.dimL = DimUtil.norm(ob.dimL);
+  }
+  if (typeof ob.dimW !== 'number') {
+    ob.dimW = DimUtil.norm(ob.dimW);
+  }
+  if (typeof ob.dimH !== 'number') {
+    ob.dimH = DimUtil.norm(ob.dimH);
+  }
 
   /*
    * 'edges' is an array of four EDGE_* constant values, corresponding
@@ -192,5 +203,4 @@ export default function BoxMaker(cfg) {
 
   return ob;
 }
-
 

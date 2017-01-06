@@ -1,11 +1,30 @@
 <!doctype html>
-<html>
+<html lang="en-US" dir="ltr">
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Boxmaker</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="css/fix-mm.css">
+    <link rel="stylesheet" href="css/app.css">
   </head>
   <body>
-    <div id="app3d"></div>
-    <div id="app"></div>
+    <header>
+      <span class="header-logo">Box-o-matic</span>
+      <ul class="header-nav">
+        <li><a href="#" data-target="about-modal">About</a></li>
+      </ul>
+    </header>
+    <main>
+      <div id="app" class="form">
+      </div>
+      <div id="preview-3d">
+      </div>
+    </main>
+    <footer>
+    </footer>
     <script src="vendor/three.js"></script>
     <script src="dist/boxmaker.js"></script>
   </body>
