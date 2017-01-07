@@ -1,5 +1,26 @@
 import * as DimUtil from './util/dimension';
 
+const PRESETS = {
+  vinyl: {
+    dimW: { value: 13, unit: 'in'},
+    dimL: { value: 13, unit: 'in'},
+    dimH: { value: 13, unit: 'in'},
+    thickness: { value: .5, unit: 'in'},
+  },
+  underbed: {
+    dimW: { value: 18, unit: 'in'},
+    dimL: { value: 24, unit: 'in'},
+    dimH: { value: 5, unit: 'in'},
+    thickness: { value: .5, unit: 'in'},
+  },
+  eurorack: {
+    dimW: { value: 14, unit: 'in'},
+    dimL: { value: 5, unit: 'in'},
+    dimH: { value: 5, unit: 'in'},
+    thickness: { value: .25, unit: 'in'},
+  },
+}
+
 // Sets the displayed value of an input based on the internal representation
 // of the value
 function setInput(el, value) {
@@ -8,6 +29,7 @@ function setInput(el, value) {
     el.value = value;
   } else if (inputKind === 'dim') {
     el.value = DimUtil.format(value);
+    el.dataset.unit = value.unit;   // Keep track of unit on element itself
   } else {
     throw new Error(`Unknown input kind: ${inputKind}`);
   }
@@ -19,7 +41,7 @@ function getInput(el) {
   if (!inputKind) {
     return el.value;
   } else if (inputKind === 'dim') {
-    return DimUtil.parse(el.value);
+    return DimUtil.parse(el.value, el.dataset.unit);
   } else {
     throw new Error(`Unknown input kind: ${inputKind}`);
   }
@@ -40,16 +62,23 @@ export default function BoxEditor(cfg) {
   const ob = {
     el: cfg.el,
     store: cfg.store,
-    defaultUnit: 'mm',
   };
   const dimFields = Array.from(ob.el.querySelectorAll('input[data-input-kind="dim"]')),
-        fields = Array.from(ob.el.querySelectorAll('input[data-field]'));
+        fields = Array.from(ob.el.querySelectorAll('input[data-field]')),
+        presets = Array.from(ob.el.querySelectorAll('[data-preset]'));
 
   function updateView(state) {
     fields.forEach((el) => {
       const key = el.dataset.field;
       setInput(el, state[key]);
     });
+  }
+
+  function applyPreset(ev) {
+    const pre = PRESETS[ev.currentTarget.dataset.preset];
+    if (pre) {
+      ob.store.update(pre);
+    }
   }
 
   function fieldChanged(ev) {
@@ -73,6 +102,9 @@ export default function BoxEditor(cfg) {
   fields.forEach((el) => {
     el.addEventListener('blur', fieldChanged);
     el.addEventListener('focus', (ev) => ev.target.select());
+  });
+  presets.forEach((el) => {
+    el.addEventListener('click', applyPreset); 
   });
 
   return ob;

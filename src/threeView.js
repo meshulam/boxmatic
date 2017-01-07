@@ -1,14 +1,17 @@
+import TWEEN from 'tween.js';
+import 'three/examples/js/controls/OrbitControls';
+
 import Store from './store';
 import BoxMaker from './boxmaker';
 import * as DimUtil from './util/dimension';
-
-import 'three/examples/js/controls/OrbitControls';
 
 const {
   Camera,
   Matrix4,
   Vector3,
 } = THREE;
+
+const TWEEN_DURATION = 1000;
 
 // Requires globals:
 // addEventListener
@@ -29,7 +32,9 @@ function toThreeGeom(path, thickness) {
 
   return new THREE.ExtrudeGeometry(shape, {
     bevelEnabled: false,
-    amount: thickness
+    amount: thickness,
+    material: 0,
+    extrudeMaterial: 1,
   });
 }
 
@@ -46,14 +51,6 @@ function cameraDollyTo(fov, l, w, h) {
   return Math.atan(fov/2) * radius;
 }
 
-/*
-let material = new THREE.MeshPhongMaterial({
-  color: 0x156289,
-  emissive: 0x072534,
-  side: THREE.DoubleSide,
-  shading: THREE.FlatShading
-});
-**/
 
 export default function ThreeView(cfg) {
   const ob = {
@@ -64,11 +61,17 @@ export default function ThreeView(cfg) {
 
   const scene = new THREE.Scene(),
         camera = new THREE.PerspectiveCamera( 75, 1, 1, 10000 ),
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        cameraPosTween = new TWEEN.Tween(camera.position),
+        cameraQuatTween = new TWEEN.Tween(camera.quaternion),
+        renderer = new THREE.WebGLRenderer({ antialias: true }),
+        faceMaterial = new THREE.MeshStandardMaterial({shading: THREE.FlatShading}),
+        edgeMaterial = new THREE.MeshStandardMaterial({shading: THREE.FlatShading});
   let frameReq;
 
-  function threeRender() {
-    frameReq = requestAnimationFrame(threeRender);
+  function animate(time) {
+    frameReq = requestAnimationFrame(animate);
+
+    TWEEN.update();   // Update transition values
     renderer.render(scene, camera);
   }
 
@@ -81,14 +84,12 @@ export default function ThreeView(cfg) {
       return acc;
     }, {});
 
-
-
     ob.render();
   }
 
   ob.setupScene = function() {
     const orbit = new THREE.OrbitControls(camera, renderer.domElement);
-    orbit.enableZoom = false;
+    //orbit.enableZoom = false;
 
     camera.position.set(-20, 40, 80);
     camera.lookAt(new Vector3());
@@ -98,13 +99,35 @@ export default function ThreeView(cfg) {
     lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
     lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
 
-    lights[ 0 ].position.set( 0, 200, 0 );
-    lights[ 1 ].position.set( 100, 200, 100 );
-    lights[ 2 ].position.set( -100, -200, -100 );
+    lights[ 0 ].position.set( 0, 2000, 0 );
+    lights[ 1 ].position.set( 1000, 2000, 1000 );
+    lights[ 2 ].position.set( -1000, -2000, -1000 );
 
     scene.add( lights[ 0 ] );
     scene.add( lights[ 1 ] );
     scene.add( lights[ 2 ] );
+
+    const loader = new THREE.TextureLoader();
+    loader.load('img/birch-top.jpg', function(map) {
+      map.wrapS = THREE.RepeatWrapping;
+      map.wrapT = THREE.RepeatWrapping;
+      //map.anisotropy = 1;
+      map.repeat.set(0.002, 0.002);
+      faceMaterial.map = map;
+      faceMaterial.needsUpdate = true;
+    });
+
+    loader.load('img/birch-edge.png', function(map) {
+      map.wrapS = THREE.RepeatWrapping;
+      map.wrapT = THREE.RepeatWrapping;
+      map.anisotropy = 4;
+      map.repeat.set(0.1, 0.1);
+      edgeMaterial.map = map;
+      //edgeMaterial.roughnessMap = map;
+      //edgeMaterial.bumpMap = map;
+      edgeMaterial.needsUpdate = true;
+    })
+
   }
 
   ob.attach = function(el) {
@@ -140,19 +163,20 @@ export default function ThreeView(cfg) {
       const m = new THREE.Matrix4();
       m.set(...bom.transform3D(i));
       geom.applyMatrix(m);
-      return new THREE.Mesh(geom);
+      return new THREE.Mesh(geom, new THREE.MultiMaterial([faceMaterial, edgeMaterial]));
     });
     scene.add(...meshes);
 
-    camera.lookAt(new Vector3());
-    camera.position.setLength(
+    //camera.lookAt(new Vector3());
+    const pos = camera.position.clone().setLength(
       1.5*cameraDollyTo(camera.fov, cfg.dimL, cfg.dimH, cfg.dimW)
     );
+    cameraPosTween.to(pos, TWEEN_DURATION).start();
 
     if (typeof reqFrame !== 'undefined') {
       cancelAnimationFrame(reqFrame)
     }
-    threeRender();  // kick off render cycle TODO: need to un-requestAnimationFrame?
+    animate();  // kick off render cycle TODO: need to un-requestAnimationFrame?
   }
 
   renderer.setClearColor(0x000000, 1);
