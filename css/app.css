@@ -4,19 +4,42 @@ body > header {
 }
 
 main {
-  display: flex;
-  align-items: stretch;
-  min-height: 400px;
 
 }
 
 main > * {
-  flex: 1;
 
 }
 
 footer {
 
+}
+
+.dialog-container {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(75, 75, 75, 0.5);
+}
+
+.dialog-container.show {
+  display: block;
+}
+
+.preview-2d {
+  width: 400px;
+  background-color: white;
+}
+
+#preview-3d {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 600px;
+  height: 600px;
 }
 
 input.invalid {

@@ -84,7 +84,7 @@ export default function BoxMaker(cfg) {
     return teeth;
   }
 
-  ob.makeFaces = function() {
+  ob.makeFaces2D = function() {
     return [0, 1, 2, 3, 4]
       .map(i => {
         const path = ob.makeFacePath(i);

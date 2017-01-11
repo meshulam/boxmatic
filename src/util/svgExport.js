@@ -1,8 +1,8 @@
 import {toSvgPath, boundingBox} from './path';
 
-const DEFAULT_SVG_STYLE = 'stroke="black" fill="none" stroke-width="0.02" ';
+const DEFAULT_SVG_STYLE = 'stroke="black" fill="none" stroke-width="1" ';
 
-function toSvg(paths) {
+export function toSvg(paths) {
   const elems = [];
   let maxX = 0,
       maxY = 0;

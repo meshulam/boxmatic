@@ -13,6 +13,11 @@ const {
 
 const TWEEN_DURATION = 1000;
 
+// Physical material settings for wood
+const MATERIAL_WOOD = {
+  metalness: 0,
+  roughness: 0.85,
+};
 // Requires globals:
 // addEventListener
 // requestAnimationFrame
@@ -51,6 +56,24 @@ function cameraDollyTo(fov, l, w, h) {
   return Math.atan(fov/2) * radius;
 }
 
+function CustomPointLight() {
+  const light = new THREE.SpotLight(0xffffff);
+  light.angle = Math.PI/6;
+  light.penumbra = 0.2;
+  light.power = 40;
+  light.distance = 4000;
+  light.decay = 2;
+  light.castShadow = true;
+  light.shadow.mapSize.width = 1024;
+  light.shadow.mapSize.height = 1024;
+  //light.shadow.camera.near = 50;
+  light.shadow.camera.far = 5000;
+  light.shadow.camera.fov = 30;
+  //light.shadow.bias = 0.01;
+
+  return light;
+}
+
 
 export default function ThreeView(cfg) {
   const ob = {
@@ -61,11 +84,11 @@ export default function ThreeView(cfg) {
 
   const scene = new THREE.Scene(),
         camera = new THREE.PerspectiveCamera( 75, 1, 1, 10000 ),
-        cameraPosTween = new TWEEN.Tween(camera.position),
+        cameraPosTween = new TWEEN.Tween(camera.position).easing(TWEEN.Easing.Exponential.Out),
         cameraQuatTween = new TWEEN.Tween(camera.quaternion),
         renderer = new THREE.WebGLRenderer({ antialias: true }),
-        faceMaterial = new THREE.MeshStandardMaterial({shading: THREE.FlatShading}),
-        edgeMaterial = new THREE.MeshStandardMaterial({shading: THREE.FlatShading});
+        faceMaterial = new THREE.MeshStandardMaterial(MATERIAL_WOOD),
+        edgeMaterial = new THREE.MeshStandardMaterial(MATERIAL_WOOD);
   let frameReq;
 
   function animate(time) {
@@ -88,45 +111,60 @@ export default function ThreeView(cfg) {
   }
 
   ob.setupScene = function() {
+    renderer.setClearColor(0x444444, 1);
+    renderer.toneMappingExposure = 0.5;
+    //renderer.physicallyCorrectLights = true;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
     const orbit = new THREE.OrbitControls(camera, renderer.domElement);
     //orbit.enableZoom = false;
 
     camera.position.set(-20, 40, 80);
     camera.lookAt(new Vector3());
 
-    const lights = [];
-    lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-    lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-    lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+    const l1 = CustomPointLight(),
+          l2 = CustomPointLight(),
+          lAmbient = new THREE.AmbientLight(0xddeeff, 0.75);
 
-    lights[ 0 ].position.set( 0, 2000, 0 );
-    lights[ 1 ].position.set( 1000, 2000, 1000 );
-    lights[ 2 ].position.set( -1000, -2000, -1000 );
+    l1.position.set(1000, 2000, -1000);
+    l2.position.set(-2000, 2000, -100);
 
-    scene.add( lights[ 0 ] );
-    scene.add( lights[ 1 ] );
-    scene.add( lights[ 2 ] );
+    scene.add(l1, l2, lAmbient);
+
+    const h1 = new THREE.CameraHelper(l1.shadow.camera);
+    const h2 = new THREE.CameraHelper(l2.shadow.camera);
+    scene.add(h1, h2)
 
     const loader = new THREE.TextureLoader();
-    loader.load('img/birch-top.jpg', function(map) {
-      map.wrapS = THREE.RepeatWrapping;
-      map.wrapT = THREE.RepeatWrapping;
-      //map.anisotropy = 1;
-      map.repeat.set(0.002, 0.002);
+    loader.load('img/birch-top.png', function(map) {
+      const scaling = 1/512 * 4;  // 2px per mm on a 512x512 image
+      map.repeat.set(scaling, scaling);
+      map.wrapS = map.wrapT = THREE.RepeatWrapping;
+      map.anisotropy = 4;
       faceMaterial.map = map;
+      faceMaterial.bumpMap = map;
+      faceMaterial.bumpScale = 0.3;
       faceMaterial.needsUpdate = true;
     });
 
     loader.load('img/birch-edge.png', function(map) {
-      map.wrapS = THREE.RepeatWrapping;
-      map.wrapT = THREE.RepeatWrapping;
+      const scaling = 1/64 * 4;   // 4 px per mm on a 64x64 image
+      map.wrapS = map.wrapT = THREE.RepeatWrapping;
+      map.repeat.set(scaling, scaling);
       map.anisotropy = 4;
-      map.repeat.set(0.1, 0.1);
       edgeMaterial.map = map;
-      //edgeMaterial.roughnessMap = map;
-      //edgeMaterial.bumpMap = map;
       edgeMaterial.needsUpdate = true;
-    })
+    });
+
+    const floor = new THREE.Mesh(
+      new THREE.PlaneBufferGeometry(2000, 2000),
+      faceMaterial
+    );
+    floor.receiveShadow = true;
+    floor.rotation.x = -Math.PI/2;
+    floor.position.y = -250;
+    scene.add(floor);
 
   }
 
@@ -138,6 +176,7 @@ export default function ThreeView(cfg) {
     ob.resize();
     el.innerHtml = '';
     el.appendChild(renderer.domElement);
+
   }
 
   ob.resize = function() {
@@ -163,13 +202,16 @@ export default function ThreeView(cfg) {
       const m = new THREE.Matrix4();
       m.set(...bom.transform3D(i));
       geom.applyMatrix(m);
-      return new THREE.Mesh(geom, new THREE.MultiMaterial([faceMaterial, edgeMaterial]));
+      const mesh = new THREE.Mesh(geom, new THREE.MultiMaterial([faceMaterial, edgeMaterial]));
+      mesh.castShadow = true;
+      //mesh.receiveShadow = true;
+      return mesh;
     });
     scene.add(...meshes);
 
     //camera.lookAt(new Vector3());
     const pos = camera.position.clone().setLength(
-      1.5*cameraDollyTo(camera.fov, cfg.dimL, cfg.dimH, cfg.dimW)
+      1.1*cameraDollyTo(camera.fov, cfg.dimL, cfg.dimH, cfg.dimW)
     );
     cameraPosTween.to(pos, TWEEN_DURATION).start();
 
@@ -179,7 +221,6 @@ export default function ThreeView(cfg) {
     animate();  // kick off render cycle TODO: need to un-requestAnimationFrame?
   }
 
-  renderer.setClearColor(0x000000, 1);
 
   if (cfg.el) {
     ob.attach(cfg.el);
