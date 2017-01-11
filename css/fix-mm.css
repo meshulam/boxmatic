@@ -46,6 +46,11 @@ h2,
 h3,
 h4 {
   font-size: inherit;
+  font-weight: inherit;
+}
+
+input {
+  font: inherit;
 }
 
 strong {
@@ -55,7 +60,7 @@ strong {
 a,
 button {
   color: inherit;
-  transition: .3s;
+  transition: .2s;
 }
 
 a {

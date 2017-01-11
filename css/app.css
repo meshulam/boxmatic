@@ -1,14 +1,124 @@
 
-body > header {
-
+:focus {
+    outline: 0;
 }
 
-main {
+header {
+  width: 100%;
+  height: 60px;
+  padding: 0 20px;
+  background-color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+}
 
+header > button {
+  height: 100%;
+  padding: 0 1em;
+}
+
+header button:focus,
+header button:hover {
+  background-color: #555;
+}
+
+.header-logo {
+  font: 2em monospace;
+}
+
+
+main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 main > * {
+  margin: 20px;
+}
 
+main .form {
+  flex-basis: 400px;
+  flex-grow: 1;
+}
+
+main .preview-3d-pane {
+  min-height: 200px;
+  flex-basis: 400px;
+  flex-grow: 4;
+  background-color: red;
+}
+
+.preview-3d-pane canvas {
+  /* Canvas sizes itself to parent, take it out of the flow
+   * so it can tell what it should resize to */
+  position: absolute;
+}
+
+
+h3 {
+  font-size: 1.4rem;
+  margin: 1rem 0;
+}
+
+.fields > * {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.5em 0;
+  align-items: center;
+}
+
+.fields label {
+  flex-basis: 8em;
+}
+
+.fields input {
+  font-size: inherit;
+  flex-basis: 10em;
+}
+
+.form-actions {
+  margin: 1em 0;
+  display: flex;
+}
+
+.form-actions > * {
+  flex-grow: 1;
+
+}
+
+.preset-selector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin: -.5em;
+}
+
+.preset-selector > * {
+  margin: .5em;
+}
+
+.preset-selector button {
+  width: 120px;
+  height: 120px;
+}
+
+main button {
+  background-color: #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  padding: 0.5em;
+}
+
+main button:focus,
+main button:hover {
+  background-color: #bbb;
+}
+
+main button:active {
+  transform: scale(0.95);
 }
 
 footer {
@@ -32,14 +142,6 @@ footer {
 .preview-2d {
   width: 400px;
   background-color: white;
-}
-
-#preview-3d {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 600px;
-  height: 600px;
 }
 
 input.invalid {

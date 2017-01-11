@@ -12,76 +12,79 @@
   </head>
   <body>
     <header>
-      <span class="header-logo">Box-o-matic</span>
-      <ul class="header-nav">
-        <li><a href="#" data-target="about-modal">About</a></li>
-      </ul>
+      <div class="header-logo">Box-o-matic</div>
+      <button href="#" data-target="about-modal">About</button>
     </header>
     <main>
       <div id="editor" class="form">
-        <h2>Design a box!</h2>
-        <div class="presets">
-          <h3>Choose from a preset:</h3>
-          <ul>
-            <li>
-              <button data-preset="vinyl">
-                Record crate
-              </button>
-            </li>
-            <li>
-              <button data-preset="underbed">
-                Under-bed storage
-              </button>
-            </li>
-            <li>
-              <button data-preset="eurorack">
-                Eurorack enclosure
-              </button>
-            </li>
-          </ul>
-        </div>
+        <h3>Choose a preset</h3>
+        <ul class="preset-selector">
+          <li>
+            <button data-preset="vinyl">
+              Record crate
+            </button>
+          </li>
+          <li>
+            <button data-preset="underbed">
+              Under-bed storage
+            </button>
+          </li>
+          <li>
+            <button data-preset="eurorack">
+              Eurorack enclosure
+            </button>
+          </li>
+        </ul>
+        <h3>Customize</h3>
         <div class="customize">
-          <h3>Customize</h3>
-          <div class="fields dimensions">
-            <label>
-              Length:
-              <input type="text" data-input-kind="dim" data-field="dimL" />
-            </label>
-            <label>
-              Width:
-              <input type="text" data-input-kind="dim" data-field="dimW" />
-            </label>
-            <label>
-              Height:
-              <input type="text" data-input-kind="dim" data-field="dimH" />
-            </label>
+          <ul class="fields">
+            <li>
+              <label for="input-dimL">
+                Length
+              </label>
+              <input id="input-dimL" type="text" data-input-kind="dim" data-field="dimL">
+            </li>
+            <li>
+              <label for="input-dimW">
+                Width
+              </label>
+              <input id="input-dinW" type="text" data-input-kind="dim" data-field="dimW">
+            </li>
+            <li>
+              <label for="input-dimH">
+                Height
+              </label>
+              <input id="input-dimH" type="text" data-input-kind="dim" data-field="dimH">
+            </li>
+            <li>
+              <label for="input-thickness">
+                Material thickness
+              </label>
+              <input id="input-thickness" type="text" data-input-kind="dim" data-field="thickness" />
+            </li>
           </div>
-          <div class="fields advanced">
-            <label>
-              Material thickness
-              <input type="text" data-input-kind="dim" data-field="thickness" />
-            </label>
-          </div>
-        </div>
-        <div class="output">
-          <button data-action="savePattern">
-            Get pattern
-          </button>
-        </div>
-        <div id="save-dialog" class="dialog-container">
-          <div class="modal">
-            <div class="preview-2d"></div>
-            <button data-action="downloadSvg">
-              Download SVG
+          <div class="form-actions">
+            <button data-action="savePattern">
+              Get pattern
             </button>
           </div>
         </div>
       </div>
-      <div id="preview-3d">
+      <div id="preview-3d" class="preview-3d-pane">
+        <canvas></canvas>
       </div>
     </main>
     <footer>
     </footer>
+
+    <div id="save-dialog" class="dialog-container">
+      <div class="modal">
+        <div class="preview-2d"></div>
+        <button data-action="downloadSvg">
+          Download SVG
+        </button>
+      </div>
+    </div>
     <script src="vendor/three.js"></script>
     <script src="dist/boxmaker.js"></script>
   </body>

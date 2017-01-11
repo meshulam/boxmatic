@@ -67,13 +67,7 @@ export default function BoxEditor(cfg) {
   const dimFields = Array.from(ob.el.querySelectorAll('input[data-input-kind="dim"]')),
         fields = Array.from(ob.el.querySelectorAll('input[data-field]')),
         presets = Array.from(ob.el.querySelectorAll('[data-preset]')),
-        saveButton = ob.el.querySelector('[data-action="savePattern"]'),
-        dialog = ob.el.querySelector('#save-dialog');
-
-  const saveForm = SaveForm({
-    el: dialog,
-    store: ob.store,
-  });
+        saveButton = ob.el.querySelector('[data-action="savePattern"]');
 
   function updateView(state) {
     fields.forEach((el) => {
@@ -104,14 +98,6 @@ export default function BoxEditor(cfg) {
     }
   }
 
-  function hideSaveDialog(ev) {
-    dialog.classList.remove('show');
-  }
-
-  function showSaveDialog(ev) {
-    dialog.classList.add('show');
-  }
-
   updateView(ob.store.get());   // initial update
   ob.store.subscribe((newState) => updateView(newState));
 
@@ -122,7 +108,9 @@ export default function BoxEditor(cfg) {
   presets.forEach((el) => {
     el.addEventListener('click', applyPreset);
   });
-  saveButton.addEventListener('click', showSaveDialog);
+  saveButton.addEventListener('click', () => {
+    ob.store.update({showSaveDialog: true});
+  });
 
   return ob;
 }

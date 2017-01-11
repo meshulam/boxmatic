@@ -14,7 +14,7 @@ gulp.task('clean', function() {
 
 gulp.task('serve', ['watch'], function() {
   browserSync.init({
-    files: [ 'index.html', 'dist/boxmaker.js' ],
+    files: [ 'index.html', 'css/app.css', 'dist/boxmaker.js' ],
     server: {
       baseDir: "./"
     }

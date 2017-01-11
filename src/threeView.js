@@ -134,7 +134,7 @@ export default function ThreeView(cfg) {
 
     const h1 = new THREE.CameraHelper(l1.shadow.camera);
     const h2 = new THREE.CameraHelper(l2.shadow.camera);
-    scene.add(h1, h2)
+    //scene.add(h1, h2)
 
     const loader = new THREE.TextureLoader();
     loader.load('img/birch-top.png', function(map) {
@@ -173,15 +173,14 @@ export default function ThreeView(cfg) {
       //detach & cleanup
     }
     ob.el = el;
-    ob.resize();
-    el.innerHtml = '';
+    el.innerHTML = '';
     el.appendChild(renderer.domElement);
-
+    ob.resize();
   }
 
   ob.resize = function() {
     const width = ob.el.clientWidth,
-          height = ob.el.clientHeight;
+          height = width;
 
     camera.aspect = width/height;
     renderer.setSize(width, height);
@@ -226,7 +225,7 @@ export default function ThreeView(cfg) {
     ob.attach(cfg.el);
   }
 
-  //addEventListener('resize', ob.resize);
+  addEventListener('resize', ob.resize);
 
   ob.setupScene();
 
