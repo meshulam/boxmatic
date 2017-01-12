@@ -1,5 +1,5 @@
 import TWEEN from 'tween.js';
-import 'three/examples/js/controls/OrbitControls';
+import OrbitControls from './three/orbitControls';
 
 import Store from './store';
 import BoxMaker from './boxmaker';
@@ -78,37 +78,27 @@ function CustomPointLight() {
 
 export default function ThreeView(cfg) {
   const ob = {
-    boxCfg: {},
-    boxCfgNorm: {},   // copy of boxCfg with dimensions converted to normalized numbers
     el: undefined,
   };
 
   const scene = new THREE.Scene(),
         camera = new THREE.PerspectiveCamera(50, 1, 1, 10000),
         cameraPosTween = new TWEEN.Tween(camera.position).easing(TWEEN.Easing.Exponential.Out),
-        cameraQuatTween = new TWEEN.Tween(camera.quaternion),
         renderer = new THREE.WebGLRenderer({ antialias: true }),
         faceMaterial = new THREE.MeshStandardMaterial(MATERIAL_WOOD),
         edgeMaterial = new THREE.MeshStandardMaterial(MATERIAL_WOOD);
+  let orbitController;
+  let needsRender = true;
   let frameReq;
 
   function animate(time) {
-    frameReq = requestAnimationFrame(animate);
+    frameReq = window.requestAnimationFrame(animate);
 
-    TWEEN.update();   // Update transition values
-    renderer.render(scene, camera);
-  }
-
-  // Called when the store updates
-  ob.updateState = function(state) {
-    ob.boxCfg = state;
-
-    ob.boxCfgNorm = Object.keys(state).reduce((acc, key) => {
-      acc[key] = DimUtil.norm(state[key]) || state[key];
-      return acc;
-    }, {});
-
-    ob.render();
+    TWEEN.update(time);   // Update transition values
+    if (needsRender) {
+      renderer.render(scene, camera);
+      needsRender = false;
+    }
   }
 
   ob.setupScene = function() {
@@ -118,8 +108,17 @@ export default function ThreeView(cfg) {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    const orbit = new THREE.OrbitControls(camera, renderer.domElement);
+    orbitController = new OrbitControls(camera, renderer.domElement);
+    orbitController.addEventListener('change', () => {
+      needsRender = true;
+    });
     //orbit.enableZoom = false;
+
+    cameraPosTween.onUpdate(() => {
+      orbitController.update();   // Needs to know about new camera pos
+      needsRender = true;
+    });
+
 
     camera.position.set(-20, 40, 80);
     camera.lookAt(new Vector3());
@@ -170,7 +169,6 @@ export default function ThreeView(cfg) {
     floor.rotation.x = -Math.PI/2;
     floor.position.y = -250;
     scene.add(floor);
-
   }
 
   ob.attach = function(el) {
@@ -188,12 +186,13 @@ export default function ThreeView(cfg) {
 
     camera.aspect = width/height;
     renderer.setSize(width, height);
+    needsRender = true;
   }
 
   let meshes = [];
-  ob.render = function() {
-    const cfg = ob.boxCfgNorm;
-    const bom = BoxMaker(ob.boxCfg);
+  ob.updateGeometry = function(state) {
+    const cfg = DimUtil.normalizeDimensions(state);
+    const bom = BoxMaker(state);
 
     // Remove old meshes
     scene.remove(...meshes);
@@ -217,24 +216,30 @@ export default function ThreeView(cfg) {
     );
     cameraPosTween.to(pos, TWEEN_DURATION).start();
 
-    if (typeof reqFrame !== 'undefined') {
-      cancelAnimationFrame(reqFrame)
-    }
-    animate();  // kick off render cycle TODO: need to un-requestAnimationFrame?
+    needsRender = true;
   }
 
+  ob.startAnimation = function() {
+    animate();
+  }
+
+  ob.stopAnimation = function() {
+    if (frameReq) {
+      window.cancelAnimationFrame(frameReq);
+    }
+  }
 
   if (cfg.el) {
     ob.attach(cfg.el);
   }
 
-  addEventListener('resize', ob.resize);
+  window.addEventListener('resize', ob.resize);
 
   ob.setupScene();
 
   // Kick off the initial render
-  ob.updateState(Store.get());
-  Store.subscribe(ob.updateState);
+  ob.updateGeometry(Store.get());
+  Store.subscribe(ob.updateGeometry);
 
   return ob;
 }

@@ -29,6 +29,6 @@ const view3DEl = document.getElementById('preview-3d');
 const view3D = ThreeView({
   el: view3DEl,
 });
-view3D.render();
+view3D.startAnimation();
 
 

@@ -75,3 +75,10 @@ export function norm(dimObj) {
   }
   return;
 }
+
+export function normalizeDimensions(obj) {
+  return Object.keys(obj).reduce((acc, key) => {
+    acc[key] = norm(obj[key]) || obj[key];
+    return acc;
+  }, {});
+}
