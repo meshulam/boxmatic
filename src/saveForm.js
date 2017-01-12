@@ -19,7 +19,11 @@ export default function SaveForm(cfg) {
     }
     const bom = BoxMaker(state);
     const faces = bom.makeFaces2D();
-    previewContainer.innerHTML = toSvg(faces);
+    const svgString = toSvg(faces);
+
+    previewContainer.innerHTML = svgString;
+    downloadSvg.href = 'data:image/svg+xml,' + svgString;
+    downloadSvg.download = 'boxo-pattern';
   }
 
   updateView(ob.store.get());   // initial update

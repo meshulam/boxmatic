@@ -13,7 +13,10 @@
   <body>
     <header>
       <div class="header-logo">Box-o-matic</div>
-      <button href="#" data-target="about-modal">About</button>
+      <nav>
+        <button href="#" data-target="about-modal">What's this?</button>
+        <button href="#" data-target="about-modal">About</button>
+      </nav>
     </header>
     <main>
       <div id="editor" class="form">
@@ -63,7 +66,7 @@
               <input id="input-thickness" type="text" data-input-kind="dim" data-field="thickness" />
             </li>
           </div>
-          <div class="form-actions">
+          <div class="actions">
             <button data-action="savePattern">
               Get pattern
             </button>
@@ -71,7 +74,7 @@
         </div>
       </div>
       <div id="preview-3d" class="preview-3d-pane">
-        <canvas></canvas>
+        <div class="placeholder"></div>
       </div>
     </main>
     <footer>
@@ -80,9 +83,12 @@
     <div id="save-dialog" class="dialog-container">
       <div class="modal">
         <div class="preview-2d"></div>
-        <button data-action="downloadSvg">
-          Download SVG
-        </button>
+        <div class="actions">
+          <a href="#" class="button" data-action="downloadSvg">
+            Download SVG
+          </a>
+          <button>Button el</button>
+        </div>
       </div>
     </div>
     <script src="vendor/three.js"></script>

@@ -18,6 +18,7 @@ const MATERIAL_WOOD = {
   metalness: 0,
   roughness: 0.85,
 };
+
 // Requires globals:
 // addEventListener
 // requestAnimationFrame
@@ -50,10 +51,10 @@ function toThreeMatrix(matArray) {
 }
 
 // How far away does the camera need to be to fully show the object?
-// 
 function cameraDollyTo(fov, l, w, h) {
   const radius = Math.sqrt(l*l + w*w + h*h) / 2;
-  return Math.atan(fov/2) * radius;
+  const angle = fov/2 * Math.PI / 180;
+  return radius / Math.sin(angle);
 }
 
 function CustomPointLight() {
@@ -83,7 +84,7 @@ export default function ThreeView(cfg) {
   };
 
   const scene = new THREE.Scene(),
-        camera = new THREE.PerspectiveCamera( 75, 1, 1, 10000 ),
+        camera = new THREE.PerspectiveCamera(50, 1, 1, 10000),
         cameraPosTween = new TWEEN.Tween(camera.position).easing(TWEEN.Easing.Exponential.Out),
         cameraQuatTween = new TWEEN.Tween(camera.quaternion),
         renderer = new THREE.WebGLRenderer({ antialias: true }),
@@ -111,7 +112,7 @@ export default function ThreeView(cfg) {
   }
 
   ob.setupScene = function() {
-    renderer.setClearColor(0x444444, 1);
+    renderer.setClearColor(0x222222, 1);
     renderer.toneMappingExposure = 0.5;
     //renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
@@ -159,7 +160,11 @@ export default function ThreeView(cfg) {
 
     const floor = new THREE.Mesh(
       new THREE.PlaneBufferGeometry(2000, 2000),
-      faceMaterial
+      new THREE.MeshStandardMaterial({
+        metalness: 0.1,
+        roughness: 0.85,
+        color: 0x888888,
+      })
     );
     floor.receiveShadow = true;
     floor.rotation.x = -Math.PI/2;
@@ -170,10 +175,9 @@ export default function ThreeView(cfg) {
 
   ob.attach = function(el) {
     if (ob.el && ob.el !== el) {
-      //detach & cleanup
+      // TODO: detach & cleanup
     }
     ob.el = el;
-    el.innerHTML = '';
     el.appendChild(renderer.domElement);
     ob.resize();
   }
@@ -189,7 +193,6 @@ export default function ThreeView(cfg) {
   let meshes = [];
   ob.render = function() {
     const cfg = ob.boxCfgNorm;
-    console.log("Rendering with config ", cfg);
     const bom = BoxMaker(ob.boxCfg);
 
     // Remove old meshes
@@ -210,7 +213,7 @@ export default function ThreeView(cfg) {
 
     //camera.lookAt(new Vector3());
     const pos = camera.position.clone().setLength(
-      1.1*cameraDollyTo(camera.fov, cfg.dimL, cfg.dimH, cfg.dimW)
+      1.3*cameraDollyTo(camera.fov, cfg.dimL, cfg.dimH, cfg.dimW)
     );
     cameraPosTween.to(pos, TWEEN_DURATION).start();
 

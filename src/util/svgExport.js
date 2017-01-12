@@ -1,22 +1,29 @@
-import {toSvgPath, boundingBox} from './path';
+import {toSvgPath, boundingBox, mergeBoundingBoxes} from './path';
 
 const DEFAULT_SVG_STYLE = 'stroke="black" fill="none" stroke-width="1" ';
+const MARGIN = 20;
 
 export function toSvg(paths) {
-  const elems = [];
-  let maxX = 0,
-      maxY = 0;
+  const bbox = paths
+                 .map(boundingBox)
+                 .reduce(mergeBoundingBoxes);
 
-  paths.forEach(path => {
-    let [minPt, maxPt] = boundingBox(path);
-    maxX = Math.max(maxX, maxPt.x);
-    maxY = Math.max(maxY, maxPt.y);
+  bbox[0].x -= MARGIN;
+  bbox[0].y -= MARGIN;
+  bbox[1].x += MARGIN;
+  bbox[1].y += MARGIN;
 
-    elems.push(`<path d="${toSvgPath(path)}" />`);
+  const width = bbox[1].x - bbox[0].x;
+  const height = bbox[1].y - bbox[0].y;
+
+  const elems = paths.map(path => {
+    return `<path d="${toSvgPath(path)}" />`;
   });
 
   return [
-    `<svg viewBox="0 0 ${maxX} ${maxY}" ${DEFAULT_SVG_STYLE} >`,
+    `<svg xmlns="http://www.w3.org/2000/svg"
+        viewBox="${bbox[0].x} ${bbox[0].y} ${width} ${height}"
+        width="${width}mm" height="${height}mm" ${DEFAULT_SVG_STYLE} >`,
       ...elems,
     `</svg>`
   ].join('');

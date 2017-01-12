@@ -7,16 +7,22 @@ header {
   width: 100%;
   height: 60px;
   padding: 0 20px;
-  background-color: #333;
+  background-color: #222222;
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: white;
 }
 
-header > button {
+header > nav {
+  height: 100%;
+}
+
+header button {
   height: 100%;
   padding: 0 1em;
+  background-color: inherit;
+  border-radius: 0;
 }
 
 header button:focus,
@@ -45,9 +51,14 @@ main .form {
 }
 
 main .preview-3d-pane {
-  min-height: 200px;
+  position: relative;
   flex-basis: 400px;
   flex-grow: 4;
+}
+
+.preview-3d-pane .placeholder {
+  width: 100%;
+  padding-bottom: 100%;    /* make the pane square */
   background-color: red;
 }
 
@@ -55,6 +66,8 @@ main .preview-3d-pane {
   /* Canvas sizes itself to parent, take it out of the flow
    * so it can tell what it should resize to */
   position: absolute;
+  top: 0;
+  left: 0;
 }
 
 
@@ -79,12 +92,12 @@ h3 {
   flex-basis: 10em;
 }
 
-.form-actions {
+.actions {
   margin: 1em 0;
   display: flex;
 }
 
-.form-actions > * {
+.actions > * {
   flex-grow: 1;
 
 }
@@ -92,7 +105,7 @@ h3 {
 .preset-selector {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: space-between;
   margin: -.5em;
 }
 
@@ -105,19 +118,23 @@ h3 {
   height: 120px;
 }
 
-main button {
+button, .button {
   background-color: #ddd;
   border-radius: 4px;
   overflow: hidden;
   padding: 0.5em;
+  text-align: center;
 }
 
-main button:focus,
-main button:hover {
+button:focus,
+button:hover,
+.button:focus,
+.button:hover {
   background-color: #bbb;
 }
 
-main button:active {
+button:active,
+.button:active {
   transform: scale(0.95);
 }
 
@@ -127,21 +144,36 @@ footer {
 
 .dialog-container {
   display: none;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
   background-color: rgba(75, 75, 75, 0.5);
 }
 
 .dialog-container.show {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 4px;
+  overflow: hidden;
+  padding: 1em;
+  margin: 2em;
+  max-width: 700px;
 }
 
 .preview-2d {
-  width: 400px;
-  background-color: white;
+  border: 1px solid black;
+}
+
+.preview-2d svg {
+  width: 100%;
+  height: 100%;
 }
 
 input.invalid {

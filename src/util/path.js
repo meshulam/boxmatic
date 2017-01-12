@@ -86,21 +86,6 @@ export function translate(path, xOff, yOff) {
   return transform(path, matrix);
 }
 
-/* mirror vertically to convert from right-handed coordinates 
- * (threejs, the rest of the world) to left-handed (svg, browser stuff).
- * mirroring is about the center of the object, so the bounding box
- * is the same before and after.
- */
-export function flipVertical(path) {
-  let [minPt, maxPt] = boundingBox(path);
-  yCenter = (minPt.y + maxPt.y) / 2;
-
-  return transform(path, [
-    1, 0,
-    0, -1,
-    0, -yCenter
-  ] );
-}
 
 export function boundingBox(path) {
   const {minPt, maxPt} = path.reduce((acc, pt) => {
@@ -120,6 +105,19 @@ export function boundingBox(path) {
   }, { minPt: {}, maxPt: {} });
 
   return [minPt, maxPt];
+}
+
+export function mergeBoundingBoxes(a, b) {
+  return [
+    {
+      x: Math.min(a[0].x, b[0].x),
+      y: Math.min(a[0].y, b[0].y),
+    },
+    {
+      x: Math.max(a[1].x, b[1].x),
+      y: Math.max(a[1].y, b[1].y),
+    },
+  ]
 }
 
 export function makeBox(width, height, xOff=0, yOff=0) {

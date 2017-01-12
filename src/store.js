@@ -22,7 +22,6 @@ function update(newCfg) {
 
   if (changed) {
     subscribers.forEach(subscriber => {
-      console.log("Calling subscriber on state change")
       subscriber(state);
     });
   }
