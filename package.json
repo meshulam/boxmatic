@@ -19,6 +19,7 @@
     "babelify": "^7.3.0",
     "browser-sync": "^2.18.5",
     "browserify": "^13.1.1",
+    "core-js": "^2.4.1",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
     "gulp-cli": "^1.2.2",

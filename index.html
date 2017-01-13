@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Boxmaker</title>
+    <title>Box-o-matic</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -14,8 +14,7 @@
     <header>
       <div class="header-logo">Box-o-matic</div>
       <nav>
-        <button href="#" data-target="about-modal">What's this?</button>
-        <button href="#" data-target="about-modal">About</button>
+        <button data-modal-id="about-modal">About</button>
       </nav>
     </header>
     <main>
@@ -23,18 +22,21 @@
         <h3>Choose a preset</h3>
         <ul class="preset-selector">
           <li>
-            <button data-preset="vinyl">
+            <button data-preset="vinyl"
+                    title="Much nicer than a milk crate">
               Record crate
             </button>
           </li>
           <li>
-            <button data-preset="underbed">
+            <button data-preset="underbed"
+                    title="Blankets, out-of-season clothes... the possibilities are endless!">
               Under-bed storage
             </button>
           </li>
           <li>
-            <button data-preset="eurorack">
-              Eurorack enclosure
+            <button data-preset="eurorack"
+                    title="A cozy home for your synthesizer modules">
+              Eurorack case
             </button>
           </li>
         </ul>
@@ -67,30 +69,62 @@
             </li>
           </div>
           <div class="actions">
-            <button data-action="savePattern">
+            <button data-modal-id="save-modal">
               Get pattern
+            </button>
+            <button class="primary" data-modal-id="order-modal">
+              Order a box
             </button>
           </div>
         </div>
       </div>
       <div id="preview-3d" class="preview-3d-pane">
-        <div class="placeholder"></div>
+        <div class="placeholder">
+          <h3>Loading...</h3>
+        </div>
       </div>
     </main>
     <footer>
     </footer>
-
-    <div id="save-dialog" class="dialog-container">
+    <div id="save-dialog" class="modal-container">
       <div class="modal">
-        <div class="preview-2d"></div>
-        <div class="actions">
-          <a href="#" class="button" data-action="downloadSvg">
-            Download SVG
-          </a>
-          <button>Button el</button>
-        </div>
       </div>
     </div>
+
+    <template id="about-modal">
+      <h3>What's all this about?</h3>
+      <p>
+        Box-o-matic generates patterns for box-joint enclosures that can be
+        fabricated using 
+        <a href="http://www.woodworkersjournal.com/cnc-router/">CNC tools</a>. 
+        I created Box-o-matic to explore user
+        interfaces for customizing digitally fabricated products.
+      </p>
+      <p>
+        Are you a designer, manufacturer, or retailer interested in developing 
+        a similar tool? <a href="mailto:matt@meshul.am">Talk to me!</a>
+      </p>
+      <p>
+      (c) 2017 <a href="http://matt.meshul.am">Matt Meshulam</a>
+      </p>
+    </template>
+    <template id="order-modal">
+      <h3>Can you make me a box?</h3>
+      <p>Soon, hopefully!</p>
+    </template>
+    <template id="save-modal">
+      <div class="preview-2d"></div>
+      <p>
+        This pattern is designed to be cut out with a CNC router or
+        laser cutter. Most CNC tools can generate a toolpath from an
+        SVG file.
+      </p>
+      <div class="actions">
+        <a href="#" class="button" data-action="downloadSvg">
+          Download SVG
+        </a>
+      </div>
+    </template>
     <script src="vendor/three.js"></script>
     <script src="dist/boxmaker.js"></script>
   </body>

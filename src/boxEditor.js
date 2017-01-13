@@ -3,22 +3,22 @@ import SaveForm from './saveForm';
 
 const PRESETS = {
   vinyl: {
-    dimW: { value: 13, unit: 'in'},
-    dimL: { value: 13, unit: 'in'},
-    dimH: { value: 13, unit: 'in'},
+    dimW: { value: 13.75, unit: 'in'},
+    dimL: { value: 13.75, unit: 'in'},
+    dimH: { value: 14.5, unit: 'in'},
     thickness: { value: .5, unit: 'in'},
   },
   underbed: {
-    dimW: { value: 18, unit: 'in'},
+    dimW: { value: 20, unit: 'in'},
     dimL: { value: 24, unit: 'in'},
-    dimH: { value: 5, unit: 'in'},
+    dimH: { value: 6, unit: 'in'},
     thickness: { value: .5, unit: 'in'},
   },
   eurorack: {
-    dimW: { value: 14, unit: 'in'},
-    dimL: { value: 5, unit: 'in'},
-    dimH: { value: 5, unit: 'in'},
-    thickness: { value: .25, unit: 'in'},
+    dimW: { value: 21.875, unit: 'in'},
+    dimL: { value: 6.25, unit: 'in'},
+    dimH: { value: 5.5, unit: 'in'},
+    thickness: { value: .5, unit: 'in'},
   },
 }
 
@@ -66,8 +66,7 @@ export default function BoxEditor(cfg) {
   };
   const dimFields = Array.from(ob.el.querySelectorAll('input[data-input-kind="dim"]')),
         fields = Array.from(ob.el.querySelectorAll('input[data-field]')),
-        presets = Array.from(ob.el.querySelectorAll('[data-preset]')),
-        saveButton = ob.el.querySelector('[data-action="savePattern"]');
+        presets = Array.from(ob.el.querySelectorAll('[data-preset]'))
 
   function updateView(state) {
     fields.forEach((el) => {
@@ -107,9 +106,6 @@ export default function BoxEditor(cfg) {
   });
   presets.forEach((el) => {
     el.addEventListener('click', applyPreset);
-  });
-  saveButton.addEventListener('click', () => {
-    ob.store.update({showSaveDialog: true});
   });
 
   return ob;

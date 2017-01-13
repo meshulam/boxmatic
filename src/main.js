@@ -1,21 +1,29 @@
+import 'core-js/fn/array/from';
+
 import Store from './store';
 import ThreeView from './threeView';
 import BoxEditor from './boxEditor';
 import SaveForm from './saveForm';
+import ModalManager from './modalManager';
 
 window.Store = Store;   // for debugging
 
 Store.update({
-  dimW: { value: 13, unit: 'in'},
-  dimL: { value: 13, unit: 'in'},
-  dimH: { value: 13, unit: 'in'},
+  dimW: { value: 5, unit: 'in'},
+  dimL: { value: 5, unit: 'in'},
+  dimH: { value: 5, unit: 'in'},
   thickness: { value: .5, unit: 'in'},
-  showSaveDialog: false,
+  currentModal: null,
 });
+
+const modal = document.querySelector('.modal-container');
+const modalMgr = ModalManager({
+  el: modal,
+  store: Store,
+})
 
 const saveEl = document.getElementById('save-dialog');
 const saveDialog = SaveForm({
-  el: saveEl,
   store: Store,
 });
 

@@ -102,7 +102,7 @@ export default function ThreeView(cfg) {
   }
 
   ob.setupScene = function() {
-    renderer.setClearColor(0x222222, 1);
+    renderer.setClearColor(0x303030, 1);
     renderer.toneMappingExposure = 0.5;
     //renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
@@ -112,7 +112,8 @@ export default function ThreeView(cfg) {
     orbitController.addEventListener('change', () => {
       needsRender = true;
     });
-    //orbit.enableZoom = false;
+    orbitController.enableZoom = false;
+    orbitController.enablePan = false;
 
     cameraPosTween.onUpdate(() => {
       orbitController.update();   // Needs to know about new camera pos
@@ -135,6 +136,12 @@ export default function ThreeView(cfg) {
     const h1 = new THREE.CameraHelper(l1.shadow.camera);
     const h2 = new THREE.CameraHelper(l2.shadow.camera);
     //scene.add(h1, h2)
+
+    // Display the scene when textures are loaded
+    THREE.DefaultLoadingManager.onLoad = function() {
+      renderer.domElement.style.opacity = 1;
+      needsRender = true;
+    }
 
     const loader = new THREE.TextureLoader();
     loader.load('img/birch-top.png', function(map) {
@@ -176,6 +183,7 @@ export default function ThreeView(cfg) {
       // TODO: detach & cleanup
     }
     ob.el = el;
+    renderer.domElement.style.opacity = 0;  // Gets enabled when loaded
     el.appendChild(renderer.domElement);
     ob.resize();
   }

@@ -20,7 +20,8 @@ export const UNIT = {
 // Functions for parsing/formatting dimensions.
 
 export function validate(dimObj) {
-  if (typeof dimObj === 'object' &&
+  if (dimObj &&
+      typeof dimObj === 'object' &&
       typeof dimObj.value === 'number' &&
       typeof dimObj.unit === 'string' &&
       UNIT.hasOwnProperty(dimObj.unit)) {
