@@ -3,16 +3,24 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Box-o-matic</title>
+    <title>Boxmatic</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="css/fix-mm.css">
     <link rel="stylesheet" href="css/app.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
   </head>
   <body>
     <header>
-      <div class="header-logo">Box-o-matic</div>
+      <img class="header-logo" src="img/logo.svg" alt="Boxmatic">
       <nav>
         <button data-modal-id="about-modal">About</button>
       </nav>
@@ -94,10 +102,10 @@
     <template id="about-modal">
       <h3>What's all this about?</h3>
       <p>
-        Box-o-matic generates patterns for box-joint enclosures that can be
+        Boxmatic generates patterns for box-joint enclosures that can be
         fabricated using 
         <a href="http://www.woodworkersjournal.com/cnc-router/">CNC tools</a>. 
-        I created Box-o-matic to explore user
+        I created Boxmatic to explore user
         interfaces for customizing digitally fabricated products.
       </p>
       <p>
@@ -111,6 +119,23 @@
     <template id="order-modal">
       <h3>Can you make me a box?</h3>
       <p>Soon, hopefully!</p>
+      <form action="//meshul.us14.list-manage.com/subscribe/post?u=f996bc56fdc6aa04b13f6ad1f&amp;id=cd7449e529" 
+            method="post"
+            id="mc-embedded-subscribe-form"
+            name="mc-embedded-subscribe-form"
+            class="validate"
+            target="_blank"
+            novalidate>
+        <label for="mce-EMAIL">Email Address</label>
+        <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
+        <div style="position: absolute; left: -5000px;" aria-hidden="true">
+          <input type="text" name="b_f996bc56fdc6aa04b13f6ad1f_cd7449e529" tabindex="-1" value="">
+        </div>
+        <div class="clear">
+          <input type="hidden" name="BOXCFG" id="mce-BOXCFG" value="">
+          <input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button">
+        </div>
+      </form>
     </template>
     <template id="save-modal">
       <div class="preview-2d"></div>
@@ -125,7 +150,7 @@
         </a>
       </div>
     </template>
-    <script src="vendor/three.js"></script>
-    <script src="dist/boxmaker.js"></script>
+    <script src="vendor/three.min.js"></script>
+    <script src="dist/app.js"></script>
   </body>
 </html>

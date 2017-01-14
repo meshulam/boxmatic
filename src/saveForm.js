@@ -3,12 +3,12 @@ import {toSvg} from './util/svgExport';
 
 export default function SaveForm(cfg) {
   const ob = {
-    el: document,
+    el: cfg.el,
     store: cfg.store,
   }
 
   function updateView(state) {
-    if (state.currentModal !== 'save-modal') return;
+    //if (state.currentModal !== 'save-modal') return;
 
     const previewContainer = ob.el.querySelector('.preview-2d'),
           downloadSvg = ob.el.querySelector('[data-action="downloadSvg"]');
@@ -23,7 +23,9 @@ export default function SaveForm(cfg) {
   }
 
   updateView(ob.store.get());   // initial update
-  ob.store.subscribe((newState) => updateView(newState));
+  // Don't need to subscribe since this view will be recreated
+  // each time it's opened
+  //ob.store.subscribe((newState) => updateView(newState));
 
   return ob;
 }

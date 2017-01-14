@@ -4,6 +4,7 @@ export default function ModalManager(cfg) {
     el: cfg.el,
     store: cfg.store,
     currentModal: null,
+    modals: cfg.modals || {}
   }
 
   const modal = ob.el.querySelector('.modal');
@@ -19,10 +20,20 @@ export default function ModalManager(cfg) {
     modal.innerHTML = '';
     modal.appendChild(content);
 
+    // Instantiate registered controller for the modal, if any
+    if (ob.modals[id]) {
+      const View = ob.modals[id];
+      ob.currentView = View({
+        el: modal,
+        store: cfg.store,
+      });
+    }
+
+    document.body.scrollTop = 0;
+
     ob.el.classList.add('show');
 
     ob.currentModal = id;
-    console.log("setting currentmodal " + id);
     ob.store.update({currentModal: ob.currentModal});
   }
 

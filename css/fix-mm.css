@@ -6,7 +6,6 @@
 
 html {
   box-sizing: border-box;
-  font-family: sans-serif;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
@@ -58,7 +57,9 @@ strong {
 }
 
 a,
-button {
+button,
+input[type="button"],
+input[type="submit"] {
   color: inherit;
   transition: .2s;
 }
@@ -67,7 +68,9 @@ a {
   text-decoration: none;
 }
 
-button {
+button,
+input[type="button"],
+input[type="submit"] {
   overflow: visible;
   border: 0;
   font: inherit;
@@ -84,7 +87,7 @@ button {
 
 /* TODO: setup own default focus style
 :focus {
-    outline: 0;
+  outline: 0;
 }
 
 */

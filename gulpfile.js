@@ -5,7 +5,8 @@ const gulp = require('gulp'),
       source = require('vinyl-source-stream'),
       buffer = require('vinyl-buffer'),
       browserify = require('browserify'),
-      watchify = require('watchify')
+      watchify = require('watchify'),
+      uglify = require('gulp-uglify'),
       browserSync = require('browser-sync').create();
 
 gulp.task('clean', function() {
@@ -21,7 +22,11 @@ gulp.task('serve', ['watch'], function() {
   });
 });
 
-function compile(watch) {
+gulp.task('build-prod', function() {
+  return compile(false, true);
+});
+
+function compile(watch, minify) {
   var bundler = watchify(
     browserify({
       entries: [ './src/main.js' ],
@@ -33,11 +38,17 @@ function compile(watch) {
   );
 
   function rebundle() {
-    bundler.bundle()
+    let bu = bundler.bundle()
       .on('error', function(err) { console.error(err); this.emit('end'); })
-      .pipe(source('boxmaker.js'))
+      .pipe(source('app.js'))
       .pipe(buffer())
-      .pipe(sourcemaps.init({ loadMaps: true }))
+
+    if (minify) {
+      bu = bu.pipe(uglify())
+        .on('error', function(err) { console.error(err); this.emit('end'); })
+    }
+
+    bu.pipe(sourcemaps.init({ loadMaps: true }))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest('./dist'));
   }

@@ -4,6 +4,7 @@ import Store from './store';
 import ThreeView from './threeView';
 import BoxEditor from './boxEditor';
 import SaveForm from './saveForm';
+import OrderView from './order';
 import ModalManager from './modalManager';
 
 window.Store = Store;   // for debugging
@@ -16,16 +17,17 @@ Store.update({
   currentModal: null,
 });
 
+const modalViews = {
+  'order-modal': OrderView,
+  'save-modal': SaveForm,
+}
+
 const modal = document.querySelector('.modal-container');
 const modalMgr = ModalManager({
   el: modal,
   store: Store,
+  modals: modalViews,
 })
-
-const saveEl = document.getElementById('save-dialog');
-const saveDialog = SaveForm({
-  store: Store,
-});
 
 const editorEl = document.getElementById('editor');
 const editor = BoxEditor({

@@ -1,4 +1,8 @@
 
+body {
+  font-family: 'Lato', sans-serif;
+}
+
 :focus {
   outline: 0;
 }
@@ -31,7 +35,7 @@ header button:hover {
 }
 
 .header-logo {
-  font: 2em monospace;
+  height: 44px;
 }
 
 
