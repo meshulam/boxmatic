@@ -152,7 +152,7 @@ export default function BoxMaker(cfg) {
 
   ob.transform3D = function(ind) {
     const xOff = -ob.dimW/2,
-          yOff = -ob.dimH/2,
+          yOff = 0,
           zOff = ob.dimL/2
 
     switch (ind) {

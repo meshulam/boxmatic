@@ -110,6 +110,9 @@ h3 {
 .fields input {
   font-size: inherit;
   flex-basis: 10em;
+  border: none;
+  border-bottom: 1px solid black;
+  text-align: center;
 }
 
 .actions {
@@ -125,16 +128,16 @@ h3 {
 .preset-selector {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   margin: -.5em;
 }
 
 .preset-selector > * {
+  flex-grow: 1;
   margin: .5em;
 }
 
 .preset-selector button {
-  width: 120px;
+  width: 100%;
   height: 120px;
 }
 

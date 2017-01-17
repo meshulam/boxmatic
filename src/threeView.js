@@ -1,5 +1,7 @@
 import TWEEN from 'tween.js';
 import OrbitControls from './three/orbitControls';
+import CheckerPlane from './three/checkerPlane';
+import Assembly from './assembly';
 
 import Store from './store';
 import BoxMaker from './boxmaker';
@@ -22,33 +24,6 @@ const MATERIAL_WOOD = {
 // Requires globals:
 // addEventListener
 // requestAnimationFrame
-
-function toThreeGeom(path, thickness) {
-  const shape = new THREE.Shape();
-  let started = false;
-  path.forEach(pt => {
-    if (!started) {
-      shape.moveTo(pt.x, pt.y);
-      started = true;
-    } else {
-      shape.lineTo(pt.x, pt.y);
-    }
-  });
-  shape.lineTo(path[0].x, path[0].y);
-
-  return new THREE.ExtrudeGeometry(shape, {
-    bevelEnabled: false,
-    amount: thickness,
-    material: 0,
-    extrudeMaterial: 1,
-  });
-}
-
-function toThreeMatrix(matArray) {
-  const m = new THREE.Matrix4();
-  m.set(...matArray);
-  return m;
-}
 
 // How far away does the camera need to be to fully show the object?
 function cameraDollyTo(fov, l, w, h) {
@@ -86,7 +61,8 @@ export default function ThreeView(cfg) {
         cameraPosTween = new TWEEN.Tween(camera.position).easing(TWEEN.Easing.Exponential.Out),
         renderer = new THREE.WebGLRenderer({ antialias: true }),
         faceMaterial = new THREE.MeshStandardMaterial(MATERIAL_WOOD),
-        edgeMaterial = new THREE.MeshStandardMaterial(MATERIAL_WOOD);
+        edgeMaterial = new THREE.MeshStandardMaterial(MATERIAL_WOOD),
+        woodMaterial = new THREE.MultiMaterial([faceMaterial, edgeMaterial]);
   let orbitController;
   let needsRender = true;
   let frameReq;
@@ -102,6 +78,7 @@ export default function ThreeView(cfg) {
   }
 
   ob.setupScene = function() {
+    scene.fog = new THREE.Fog(0xAAAAAA, 2000, 10000);
     renderer.setClearColor(0x303030, 1);
     renderer.toneMappingExposure = 0.5;
     //renderer.physicallyCorrectLights = true;
@@ -164,17 +141,16 @@ export default function ThreeView(cfg) {
       edgeMaterial.needsUpdate = true;
     });
 
-    const floor = new THREE.Mesh(
-      new THREE.PlaneBufferGeometry(2000, 2000),
-      new THREE.MeshStandardMaterial({
-        metalness: 0.1,
-        roughness: 0.85,
-        color: 0x888888,
-      })
-    );
+    const floor = CheckerPlane({
+      width: 2000,
+      height: 2000,
+      tileSize: 200,
+      colorA: '#005F79',
+      colorB: '#d0d0d0',
+    });
     floor.receiveShadow = true;
     floor.rotation.x = -Math.PI/2;
-    floor.position.y = -250;
+    //floor.position.y = -250;
     scene.add(floor);
   }
 
@@ -197,28 +173,25 @@ export default function ThreeView(cfg) {
     needsRender = true;
   }
 
-  let meshes = [];
+  let assembly;
+
   ob.updateGeometry = function(state) {
     const cfg = DimUtil.normalizeDimensions(state);
     const bom = BoxMaker(state);
 
     // Remove old meshes
-    scene.remove(...meshes);
+    if (assembly) {
+      scene.remove(assembly.meshGroup);
+    }
 
-    meshes = [0, 1, 2, 3, 4].map((i) => {
-      const path = bom.makeFacePath(i);
-      const geom = toThreeGeom(path, bom.thickness);
-      const m = new THREE.Matrix4();
-      m.set(...bom.transform3D(i));
-      geom.applyMatrix(m);
-      const mesh = new THREE.Mesh(geom, new THREE.MultiMaterial([faceMaterial, edgeMaterial]));
-      mesh.castShadow = true;
-      //mesh.receiveShadow = true;
-      return mesh;
+    assembly = Assembly({
+      model: bom,
+      material: woodMaterial,
     });
-    scene.add(...meshes);
 
-    //camera.lookAt(new Vector3());
+    scene.add(assembly.meshGroup);
+
+    orbitController.target = assembly.bbox.getCenter();
     const pos = camera.position.clone().setLength(
       1.3*cameraDollyTo(camera.fov, cfg.dimL, cfg.dimH, cfg.dimW)
     );
