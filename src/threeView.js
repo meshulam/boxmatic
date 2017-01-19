@@ -1,6 +1,7 @@
 import TWEEN from 'tween.js';
 import OrbitControls from './three/orbitControls';
 import CheckerPlane from './three/checkerPlane';
+import './three/polyfills';
 import Assembly from './assembly';
 
 import Store from './store';
@@ -58,7 +59,8 @@ export default function ThreeView(cfg) {
 
   const scene = new THREE.Scene(),
         camera = new THREE.PerspectiveCamera(50, 1, 1, 10000),
-        cameraPosTween = new TWEEN.Tween(camera.position).easing(TWEEN.Easing.Exponential.Out),
+        cameraPosTween = new TWEEN.Tween(camera.position)
+          .easing(TWEEN.Easing.Cubic.Out),
         renderer = new THREE.WebGLRenderer({ antialias: true }),
         faceMaterial = new THREE.MeshStandardMaterial(MATERIAL_WOOD),
         edgeMaterial = new THREE.MeshStandardMaterial(MATERIAL_WOOD),
@@ -116,6 +118,9 @@ export default function ThreeView(cfg) {
 
     // Display the scene when textures are loaded
     THREE.DefaultLoadingManager.onLoad = function() {
+      // Kick off the initial render
+      ob.updateGeometry(Store.get());
+
       renderer.domElement.style.opacity = 1;
       needsRender = true;
     }
@@ -179,17 +184,19 @@ export default function ThreeView(cfg) {
     const cfg = DimUtil.normalizeDimensions(state);
     const bom = BoxMaker(state);
 
-    // Remove old meshes
-    if (assembly) {
-      scene.remove(assembly.meshGroup);
-    }
-
-    assembly = Assembly({
+    const newAssembly = Assembly({
+      parent: scene,
       model: bom,
       material: woodMaterial,
     });
 
-    scene.add(assembly.meshGroup);
+    if (assembly) {
+      newAssembly.fadeIn(500, assembly.bbox);
+      assembly.fadeOut();
+    } else {
+      newAssembly.fadeIn(0);
+    }
+    assembly = newAssembly;
 
     orbitController.target = assembly.bbox.getCenter();
     const pos = camera.position.clone().setLength(
@@ -218,8 +225,6 @@ export default function ThreeView(cfg) {
 
   ob.setupScene();
 
-  // Kick off the initial render
-  ob.updateGeometry(Store.get());
   Store.subscribe(ob.updateGeometry);
 
   return ob;
