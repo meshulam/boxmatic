@@ -30,6 +30,7 @@ export default function ModalManager(cfg) {
     }
 
     document.body.scrollTop = 0;
+    document.body.style.overflow = 'hidden';
 
     ob.el.classList.add('show');
 
@@ -38,6 +39,8 @@ export default function ModalManager(cfg) {
   }
 
   ob.hideModal = function() {
+    document.body.style.overflow = '';
+
     ob.el.classList.remove('show');
     ob.currentModal = null;
     modal.innerHTML = '';

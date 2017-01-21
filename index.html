@@ -28,6 +28,11 @@
       </nav>
     </header>
     <main>
+      <div id="preview-3d" class="preview-3d-pane">
+        <div class="placeholder">
+          <h3>Loading...</h3>
+        </div>
+      </div>
       <div id="editor" class="form">
         <h3>Choose a preset</h3>
         <ul class="preset-selector">
@@ -88,15 +93,10 @@
           </div>
         </div>
       </div>
-      <div id="preview-3d" class="preview-3d-pane">
-        <div class="placeholder">
-          <h3>Loading...</h3>
-        </div>
-      </div>
     </main>
     <footer>
     </footer>
-    <div id="save-dialog" class="modal-container">
+    <div class="modal-container">
       <div class="modal">
       </div>
     </div>
@@ -106,21 +106,24 @@
       <p>
         Boxmatic generates patterns for box-joint enclosures that can be
         fabricated using 
-        <a href="http://www.woodworkersjournal.com/cnc-router/">CNC tools</a>. 
-        I created Boxmatic to explore user
-        interfaces for customizing digitally fabricated products.
+        <a href="http://www.woodworkersjournal.com/cnc-router/">CNC tools</a>.
+        I'm developing Boxmatic to explore
+        interfaces for visualizing and customizing physical products.
       </p>
       <p>
-        Are you a designer, manufacturer, or retailer interested in developing 
-        a similar tool? <a href="mailto:matt@meshul.am">Talk to me!</a>
+        Are you a designer, manufacturer, or retailer interested in deploying a
+        tool like this?
+        <a href="mailto:matt@meshul.am">Talk to me!</a>
       </p>
       <p>
-      (c) 2017 <a href="http://matt.meshul.am">Matt Meshulam</a>
+      © 2017 Matt Meshulam <br>
+      <a href="http://matt.meshul.am">http://matt.meshul.am</a> <br>
+      <a href="https://twitter.com/mattmeshulam">@mattmeshulam</a>
       </p>
     </template>
     <template id="order-modal">
-      <h3>Can you make me a box?</h3>
-      <p>Soon, hopefully!</p>
+      <h3>Coming soon!</h3>
+      <p>Sign up to receive updates on future designs and to order custom pieces.</p>
       <form action="//meshul.us14.list-manage.com/subscribe/post?u=f996bc56fdc6aa04b13f6ad1f&amp;id=cd7449e529" 
             method="post"
             id="mc-embedded-subscribe-form"
@@ -128,14 +131,18 @@
             class="validate"
             target="_blank"
             novalidate>
-        <label for="mce-EMAIL">Email Address</label>
-        <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
+        <ul class="fields">
+          <li>
+            <label for="mce-EMAIL">Email Address</label>
+            <input type="email" placeholder="me@example.com" value="" name="EMAIL" class="required email" id="mce-EMAIL">
+          </li>
+        </ul>
         <div style="position: absolute; left: -5000px;" aria-hidden="true">
           <input type="text" name="b_f996bc56fdc6aa04b13f6ad1f_cd7449e529" tabindex="-1" value="">
         </div>
-        <div class="clear">
+        <div class="actions">
           <input type="hidden" name="BOXCFG" id="mce-BOXCFG" value="">
-          <input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button">
+          <input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button primary">
         </div>
       </form>
     </template>
@@ -143,7 +150,10 @@
       <div class="preview-2d"></div>
       <p>
         This pattern is designed to be cut out with a CNC router or
-        laser cutter. Most CNC tools can generate a toolpath from an
+        laser cutter.
+      </p>
+      <p>
+        Most CNC tools can generate a toolpath from an
         SVG file.
       </p>
       <div class="actions">

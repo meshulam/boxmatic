@@ -36,7 +36,7 @@ function cameraDollyTo(fov, l, w, h) {
 function CustomPointLight() {
   const light = new THREE.SpotLight(0xffffff);
   light.angle = Math.PI/6;
-  light.penumbra = 0.2;
+  light.penumbra = 0.0;
   light.power = 40;
   light.distance = 4000;
   light.decay = 2;
@@ -99,16 +99,19 @@ export default function ThreeView(cfg) {
       needsRender = true;
     });
 
+    const origin = new Vector3();
 
-    camera.position.set(-20, 40, 80);
-    camera.lookAt(new Vector3());
+    camera.position.set(400, 800, 800);
+    camera.lookAt(origin);
 
     const l1 = CustomPointLight(),
           l2 = CustomPointLight(),
           lAmbient = new THREE.AmbientLight(0xddeeff, 0.75);
 
-    l1.position.set(1000, 2000, -1000);
-    l2.position.set(-2000, 2000, -100);
+    l1.position.set(1000, 2000, 1000);
+    l1.lookAt(origin);
+    l2.position.set(-2000, 2000, 500);
+    l2.lookAt(origin);
 
     scene.add(l1, l2, lAmbient);
 
@@ -171,9 +174,10 @@ export default function ThreeView(cfg) {
 
   ob.resize = function() {
     const width = ob.el.clientWidth,
-          height = width;
+          height = ob.el.clientHeight;
 
     camera.aspect = width/height;
+    camera.updateProjectionMatrix();
     renderer.setSize(width, height);
     needsRender = true;
   }

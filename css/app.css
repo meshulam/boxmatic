@@ -3,8 +3,16 @@ body {
   font-family: 'Lato', sans-serif;
 }
 
+p {
+  margin-bottom: 1em;
+}
+
 :focus {
   outline: 0;
+}
+
+a:hover {
+  color: #555;
 }
 
 header {
@@ -43,28 +51,31 @@ main {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
+  margin: .5em;
 }
 
 main > * {
-  margin: 20px;
+  margin: .5em;
 }
 
 main .form {
-  flex-basis: 400px;
+  flex-basis: 20em;
   flex-grow: 1;
 }
 
 .preview-3d-pane {
   position: relative;
-  flex-basis: 400px;
-  flex-grow: 4;
+  max-height: 85vh;
+  overflow: hidden;
+  flex-basis: 10em;
+  flex-grow: 10;
 }
 
 .preview-3d-pane:before {
   display: block;
   content: "";
   width: 100%;
-  padding-top: 100%;
+  padding-top: 75%;
   background-color: #333;
 }
 
@@ -96,11 +107,16 @@ h3 {
   margin: 1rem 0;
 }
 
+h3:first-child {
+  margin-top: 0;
+}
+
 .fields > * {
   display: flex;
   flex-wrap: wrap;
   padding: 0.5em 0;
   align-items: center;
+  justify-content: center;
 }
 
 .fields label {
@@ -122,6 +138,7 @@ h3 {
 
 .actions > * {
   flex-grow: 1;
+  flex-basis: 0;
   margin: .5em;
 }
 
@@ -133,6 +150,7 @@ h3 {
 
 .preset-selector > * {
   flex-grow: 1;
+  flex-basis: 0;
   margin: .5em;
 }
 
@@ -141,19 +159,21 @@ h3 {
   height: 120px;
 }
 
-button, .button {
+button,
+a.button,
+input.button {
   background-color: #ddd;
   border-radius: 4px;
   overflow: hidden;
   padding: 0.5em;
   text-align: center;
+  text-decoration: none;
 }
 
 button.primary,
 .button.primary {
   background-color: #005f79;
   color: white;
-
 }
 
 button:focus,
@@ -194,11 +214,19 @@ footer {
   overflow: scroll;
   padding: 1em;
   margin: 2em;
-  max-width: calc(100vw - 4em);
-  max-height: calc(100vh - 4em);
+  max-width: calc(100vw - 4rem);
+  max-height: calc(100vh - 4rem);
+}
+
+@media screen and (min-width: 1100px) {
+  .modal {
+    max-width: 972px;
+  }
 }
 
 .preview-2d {
+  text-align: center;
+
 }
 
 .preview-2d svg {
@@ -207,6 +235,7 @@ footer {
   height: auto;
   max-width: 100%;
   max-height: 50vh;
+  margin-bottom: 1em;
 }
 
 input.invalid {

@@ -12,7 +12,7 @@ html {
 
 body {
   margin: 0;
-  font: 16px/1 sans-serif;
+  font: 16px/1.2 sans-serif;
   min-height: 100vh;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -62,10 +62,6 @@ input[type="button"],
 input[type="submit"] {
   color: inherit;
   transition: .2s;
-}
-
-a {
-  text-decoration: none;
 }
 
 button,
