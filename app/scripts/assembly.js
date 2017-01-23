@@ -2,7 +2,6 @@ import TWEEN from 'tween.js';
 
 // Represents a 3D assembly in three.js
 //
-//
 
 function toThreeGeom(path, thickness) {
   const shape = new THREE.Shape();

@@ -22,10 +22,6 @@ const MATERIAL_WOOD = {
   roughness: 0.85,
 };
 
-// Requires globals:
-// addEventListener
-// requestAnimationFrame
-
 // How far away does the camera need to be to fully show the object?
 function cameraDollyTo(fov, l, w, h) {
   const radius = Math.sqrt(l*l + w*w + h*h) / 2;
@@ -129,7 +125,7 @@ export default function ThreeView(cfg) {
     }
 
     const loader = new THREE.TextureLoader();
-    loader.load('img/birch-top.png', function(map) {
+    loader.load('images/birch-top.png', function(map) {
       const scaling = 1/512 * 4;  // 2px per mm on a 512x512 image
       map.repeat.set(scaling, scaling);
       map.wrapS = map.wrapT = THREE.RepeatWrapping;
@@ -140,7 +136,7 @@ export default function ThreeView(cfg) {
       faceMaterial.needsUpdate = true;
     });
 
-    loader.load('img/birch-edge.png', function(map) {
+    loader.load('images/birch-edge.png', function(map) {
       const scaling = 1/64 * 4;   // 4 px per mm on a 64x64 image
       map.wrapS = map.wrapT = THREE.RepeatWrapping;
       map.repeat.set(scaling, scaling);
