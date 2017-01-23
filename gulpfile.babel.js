@@ -12,10 +12,15 @@ import runSequence from 'run-sequence';
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 
+// Build vars
+const BUILD = {
+  PRODUCTION: false,
+}
+
 const BROWSERIFY_OPTS = {
   entries: [ './app/scripts/main.js' ],
   debug: true,    // Enable source maps
-  transform: [['babelify', { ignore: ['./app/vendor/**'] }]],
+  transform: [['babelify', { ignore: ['./app/scripts/vendor/**'] }]],
 }
 
 // Extra options to add to browserify so watchify gets wired
@@ -140,15 +145,17 @@ function bundle() {
     // convert Node stream of the bundled js to a single Vinyl file
     .pipe(source('app.js'))
     .pipe(buffer())
-    .pipe($.uglify())
-    .pipe($.size({showFiles: true, title: 'scripts'}))
     .pipe($.sourcemaps.init({ loadMaps: true }))
+    .pipe($.if(BUILD.PRODUCTION, $.uglify()))
     .pipe($.sourcemaps.write('./'))
+    .pipe($.size({showFiles: true, title: 'scripts'}))
     .pipe(gulp.dest('dist/scripts'))
     .pipe(gulp.dest('.tmp/scripts'))
 }
 
 gulp.task('default', ['clean'], function(cb) {
+  BUILD.PRODUCTION = true;
+
   runSequence(
     'styles',
     ['html', 'scripts', 'images', 'icon', 'vendor', 'copy'],

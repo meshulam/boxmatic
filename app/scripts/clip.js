@@ -1,4 +1,4 @@
-import ClipperLib from '../vendor/clipper';
+import ClipperLib from './lib/clipper';
 import {Pt} from './util/path';
 
 // Number of discrete steps per real world unit (mm or inch)
