@@ -26,6 +26,9 @@ const BROWSERIFY_OPTS = {
 // Extra options to add to browserify so watchify gets wired
 const WATCHIFY_OPTS = Object.assign({}, watchify.args, BROWSERIFY_OPTS);
 
+const TEST_OPTS = Object.assign({}, WATCHIFY_OPTS, {
+  entries: [ './test/scripts/main.js' ]
+});
 
 gulp.task('clean', function() {
   return del(['.tmp', 'dist/*', '!dist/.git'], {dot: true});
@@ -124,17 +127,38 @@ gulp.task('styles', function() {
     .pipe(gulp.dest('dist/styles'))
 });
 
-gulp.task('scripts', bundle);
+const testWatcher = watchify(browserify(TEST_OPTS));
+testWatcher.name = 'testWatcher';
+testWatcher.on('update', () => bundle(testWatcher));
+
+gulp.task('test-browser', ['clean'], function() {
+  return bundle(testWatcher)
+    .on('finish', () => {
+      browserSync({
+        notify: false,
+        // Allow scroll syncing across breakpoints
+        scrollElementMapping: ['main', '.mdl-layout'],
+        // https: true,
+        server: ['.tmp', 'test'],
+        port: 5002
+      });
+
+      // Watch built JS since browserify handles the watching
+      gulp.watch('.tmp/scripts/**/*.js', reload);
+    })
+})
+
+gulp.task('scripts', () => bundle(appWatcher));
 gulp.task('scripts-onetime', function() {
   // Force gulp to exit
   return bundle().pipe($.exit())
 })
 
-const bWatcher = watchify(browserify(WATCHIFY_OPTS));
-bWatcher.on('update', bundle);
+const appWatcher = watchify(browserify(WATCHIFY_OPTS));
+appWatcher.on('update', () => bundle(appWatcher));
 
-function bundle() {
-  return bWatcher.bundle()
+function bundle(browserifyInstance) {
+  return browserifyInstance.bundle()
     .on('error', function(err) {
       console.log(err.message);
       browserSync.notify(err.message, 2000);
@@ -150,7 +174,7 @@ function bundle() {
     .pipe($.sourcemaps.write('./'))
     .pipe($.size({showFiles: true, title: 'scripts'}))
     .pipe(gulp.dest('dist/scripts'))
-    .pipe(gulp.dest('.tmp/scripts'))
+    .pipe(gulp.dest('.tmp/scripts'));
 }
 
 gulp.task('default', ['clean'], function(cb) {

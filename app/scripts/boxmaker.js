@@ -1,7 +1,7 @@
-import ClipperWrapper from './clip';
-import * as Path from './util/path';
 import { norm } from './util/dimension';
+import Paper from './geom/paper';
 
+//const PaperScope = paper.
 // Internal constants for making iterating over faces easier
 const EDGE_SOLO = 0,
       EDGE_UNDER = 1,
@@ -13,6 +13,22 @@ export const FACE_FRONT = 0,
       FACE_RIGHT = 3,
       FACE_BOTTOM = 4,
       FACE_TOP = 5
+
+
+function fromPaperPath(path) {
+  if (!(path.closed &&
+        path.segments &&
+        path.segments.length > 2)) {
+    throw new Error('invalid path');
+  }
+
+  return path.segments.map((seg) => {
+    return {
+      x: seg.point.x,
+      y: seg.point.y,
+    }
+  })
+}
 
 /* cfg consists of:
  * - dimL
@@ -35,33 +51,32 @@ export default function BoxMaker(cfg) {
    * to the bottom, right, top, left edges of this face.
    */
   function makeFaceInternal(width, height, edges) {
-    let facePath = [Path.makeBox(width, height)];
-
-    edges.forEach((edgeType, i) => {
-      const clippy = ClipperWrapper();
-      clippy.addSubject(facePath);
-
-      let translation = Path.Pt(0, 0);
-      if (i===1 || i === 2) {
-        translation.x = width;
-      }
-      if (i > 1) {
-        translation.y = height;
-      }
-
-      const distance = (i % 2 === 0) ? width : height;
-
-      let teeth = genTeethCutout(distance, edgeType);
-      teeth.forEach(tooth => {
-        let out = Path.rotate(tooth, 90*i, Path.Pt(0, 0));
-        out = Path.translate(out, translation);
-        clippy.addClip(out);
-      });
-      facePath = clippy.difference();
+    const origFace = new Paper.Path.Rectangle({
+      point: [0, 0],
+      size: [width, height],
     });
 
-    // TODO: Check that we get just one path for each face
-    return facePath[0];
+    const teethFace = edges.reduce((face, edgeType, i) => {
+      const distance = (i % 2 === 0) ? width : height;
+      const edgeTeeth = genTeethCutout(distance, edgeType);
+
+      // TODO: matrix composition seems backwards?
+      const edgeTransform = new Paper.Matrix()
+        .translate(
+          (i===1 || i===2) ? width : 0,
+          (i > 1)          ? height: 0
+        )
+        .rotate(90*i, 0, 0);
+      console.log('transform: ', edgeTransform, 'i: ', i);
+
+      return edgeTeeth.reduce((face2, tooth) => {
+        tooth.transform(edgeTransform);
+        console.log("Subtracting tooth: ", tooth.bounds)
+        return face2.subtract(tooth);
+      }, face)
+    }, origFace);
+
+    return fromPaperPath(teethFace);
   }
 
   function genTeethCutout(distance, edgeType) {
@@ -72,14 +87,17 @@ export default function BoxMaker(cfg) {
     ) * 2 - 1;
 
     const realWidth = distance / numTeeth;
-
     const startInd = (edgeType === EDGE_OVER) ? 0 : 1;
 
-    const baseTooth = Path.makeBox(realWidth, ob.thickness);
+    const baseTooth = Paper.Path.Rectangle({
+      point: [0, 0],
+      size: [realWidth, ob.thickness],
+    });
 
     const teeth = [];
     for (let i=startInd; i<numTeeth; i+=2) {
-      teeth.push(Path.translate(baseTooth, i*realWidth, 0));
+      const tooth = baseTooth.clone().translate(i*realWidth, 0);
+      teeth.push(tooth);
     }
     return teeth;
   }

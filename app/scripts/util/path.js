@@ -1,32 +1,32 @@
+import Paper from '../geom/paper';
 
 export function Pt(x, y) {
-  return {
+  const ob = {
     x: x,
     y: y,
   }
 }
 
-function ptSubtract(a, b) {
+export function ptSubtract(a, b) {
   return {
     x: a.x-b.x,
     y: a.y-b.y,
   }
 }
 
-function ptAdd(a, b) {
+export function ptAdd(a, b) {
   return {
     x: a.x+b.x,
     y: a.y+b.y,
   }
 }
 
-function ptScale(pt, factor) {
+export function ptScale(pt, factor) {
   return {
     x: pt.x*factor,
     y: pt.y*factor,
   }
 }
-
 
 // matrix is a 6-element array [a, b, d, e, xoff, yoff].
 export function transform(path, matrix) {

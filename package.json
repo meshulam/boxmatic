@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "clipper-js": "0.0.6",
+    "paper": "^0.10.2",
     "three": "^0.83.0",
     "tween.js": "^16.3.5"
   },
@@ -36,6 +36,8 @@
     "gulp-useref": "^3.1.2",
     "gulp-util": "^3.0.8",
     "run-sequence": "^1.2.2",
+    "tape-catch": "^1.0.6",
+    "tape-dom": "0.0.12",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.8.0"
