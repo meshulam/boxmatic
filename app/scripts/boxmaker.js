@@ -2,6 +2,7 @@ import { norm } from './util/dimension';
 import { toShape } from './util/path';
 import Paper from './geom/paper';
 import { Part, ROTATION } from './geom/part';
+import pt from './geom/pt';
 
 //const PaperScope = paper.
 // Internal constants for making iterating over faces easier
@@ -9,19 +10,11 @@ const EDGE_SOLO = 0,
       EDGE_UNDER = 1,
       EDGE_OVER = 2
 
-function fromPaperPath(path) {
-  if (!(path.closed &&
-        path.segments &&
-        path.segments.length > 2)) {
-    throw new Error('invalid path');
-  }
-
-  return path.segments.map((seg) => {
-    return {
-      x: seg.point.x,
-      y: seg.point.y,
-    }
-  })
+export const HANDLES = {
+  NONE: 0,
+  FRONT: 1,
+  SIDES: 2,
+  ALL: 3,
 }
 
 /* cfg consists of:
@@ -38,6 +31,8 @@ export default function BoxMaker(cfg) {
     dimL: norm(cfg.dimL),   // z
     thickness: norm(cfg.thickness),
     parts: [],
+    handles: cfg.handles || HANDLES.ALL,
+    handleSize: pt(110, 35)
   };
   ob.toothWidth = norm(cfg.toothWidth) || ob.thickness*2
 
@@ -58,6 +53,7 @@ export default function BoxMaker(cfg) {
         rotation: ROTATION.FRONT,
         origin: [-ob.dimW/2, 0, ob.dimL/2],
         edges: [ EDGE_UNDER, EDGE_OVER, EDGE_SOLO, EDGE_OVER ],
+        handle: ob.handles === HANDLES.FRONT || ob.handles === HANDLES.ALL,
       },
       {
         id: 'face-back',
@@ -66,6 +62,7 @@ export default function BoxMaker(cfg) {
         rotation: ROTATION.BACK,
         origin: [ob.dimW/2, 0, -ob.dimL/2],
         edges: [ EDGE_UNDER, EDGE_OVER, EDGE_SOLO, EDGE_OVER ],
+        handle: ob.handles === HANDLES.ALL,
       },
       {
         id: 'face-left',
@@ -74,6 +71,7 @@ export default function BoxMaker(cfg) {
         rotation: ROTATION.LEFT,
         origin: [-ob.dimW/2, 0, -ob.dimL/2],
         edges: [ EDGE_UNDER, EDGE_UNDER, EDGE_SOLO, EDGE_UNDER ],
+        handle: ob.handles === HANDLES.SIDES || ob.handles === HANDLES.ALL,
       },
       {
         id: 'face-right',
@@ -82,6 +80,7 @@ export default function BoxMaker(cfg) {
         rotation: ROTATION.RIGHT,
         origin: [ob.dimW/2, 0, ob.dimL/2],
         edges: [ EDGE_UNDER, EDGE_UNDER, EDGE_SOLO, EDGE_UNDER ],
+        handle: ob.handles === HANDLES.SIDES || ob.handles === HANDLES.ALL,
       },
       {
         id: 'face-bottom',
@@ -90,6 +89,7 @@ export default function BoxMaker(cfg) {
         rotation: ROTATION.BOTTOM,
         origin: [-ob.dimW/2, 0, -ob.dimL/2],
         edges: [ EDGE_OVER, EDGE_OVER, EDGE_OVER, EDGE_OVER ],
+        handle: false,
       },
     ]
   }
@@ -98,13 +98,27 @@ export default function BoxMaker(cfg) {
     ob.parts = ob.partConfigs().map(pc => ob.makePart(pc));
   }
 
+  // Return a Paper Path for a hole to cut out from a part
+  ob.handlePath = function(pc) {
+    const rect = new Paper.Rectangle(
+      pc.width/2-ob.handleSize.x/2,   // centering in x
+      pc.height-ob.thickness*1.5,     // start 1.5x thickness below the top
+      ob.handleSize.x,
+      -ob.handleSize.y
+    );
+
+    const radius = Math.min(ob.handleSize.x, ob.handleSize.y) / 2;
+
+    return new Paper.Path.Rectangle(rect, new Paper.Size(radius, radius));
+  }
+
   ob.makePart = function(pc) {
     const origFace = new Paper.Path.Rectangle({
       point: [0, 0],
       size: [pc.width, pc.height],
     })
 
-    const teethFace = pc.edges.reduce((face, edgeType, i) => {
+    let finishedFace = pc.edges.reduce((face, edgeType, i) => {
       const distance = (i % 2 === 0) ? pc.width : pc.height;
       const edgeTeeth = genTeethCutout(distance, edgeType);
 
@@ -122,8 +136,15 @@ export default function BoxMaker(cfg) {
       }, face)
     }, origFace);
 
+    if (pc.handle &&
+        (pc.width > ob.handleSize.x + 2*ob.thickness) &&
+        (pc.height > ob.handleSize.y + 2*ob.thickness)) {
+
+      finishedFace = finishedFace.subtract(ob.handlePath(pc));
+    }
+
     return Part({
-      shape: toShape(teethFace),
+      shape: toShape(finishedFace),
       thickness: ob.thickness,
       rotation: pc.rotation,
       position: pc.origin,
