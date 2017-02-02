@@ -6,6 +6,7 @@ import * as Path from '../../app/scripts/util/path';
 const FACE_FRONT = 0; // TODO: export these
 
 import Paper from '../../app/scripts/geom/paper';
+
 test('matrixtest', function(t) {
   const rot90 = new Paper.Matrix().rotate(90, 0, 0);
 
@@ -23,8 +24,8 @@ test('matrixtest', function(t) {
   });
 
   t.test('translate', function(t) {
-    t.equal(tPt.x, 60);
-    t.equal(tPt.y, 20);
+    t.ok(doubleEq(tPt.x, 60));
+    t.ok(doubleEq(tPt.y, 20));
     t.end();
   });
 
@@ -36,11 +37,11 @@ test('matrixtest', function(t) {
     const rtPt = rotTrans.transform(pt.clone());
     const trPt = transRot.transform(pt.clone());
 
-    t.equal(rtPt.x, 30);
-    t.equal(rtPt.y, 10);
+    t.ok(doubleEq(rtPt.x, 30));
+    t.ok(doubleEq(rtPt.y, 10));
 
-    t.equal(trPt.x, -20);
-    t.equal(trPt.y, 60);
+    t.ok(doubleEq(trPt.x, -20));
+    t.ok(doubleEq(trPt.y, 60));
 
     t.end();
   });
@@ -61,17 +62,16 @@ test('BoxMaker', function(t) {
 
   t.test('makeFacePath - front', function(t) {
     const bm = makeBox();
-    const path = bm.makeFacePath(FACE_FRONT);
-    const box = Path.boundingBox(path);
+    bm.update();
+    const part = bm.parts[0];   // Front face
 
-    const width = box[1].x - box[0].x;
-    const height = box[1].y - box[0].y;
-    t.equal(width, 40);
-    t.equal(height, 30);
+    t.equal(part.thickness, 2);
+    t.deepEqual(part.rotation, [0, 0, 0, 1]);
+    t.deepEqual(part.position, [0, 15, 25]);
 
-    t.equal(path.length, 48);
+    //t.ok(doubleEq(path.length, 48));
     t.end();
   });
 
-
+  t.end();
 });

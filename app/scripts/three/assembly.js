@@ -1,27 +1,19 @@
 import TWEEN from 'tween.js';
+import {svgToThreeShape} from '../util/path';
 
 // Represents a 3D assembly in three.js
 //
 
-function toThreeGeom(path, thickness) {
-  const shape = new THREE.Shape();
-  let started = false;
-  path.forEach(pt => {
-    if (!started) {
-      shape.moveTo(pt.x, pt.y);
-      started = true;
-    } else {
-      shape.lineTo(pt.x, pt.y);
-    }
-  });
-  shape.lineTo(path[0].x, path[0].y);
+function toThreeGeom(part) {
+  const shape = svgToThreeShape(part.shape.outline);
+  shape.holes = part.shape.holes.map(svgToThreeShape);
 
   return new THREE.ExtrudeGeometry(shape, {
     bevelEnabled: false,
-    amount: thickness,
-    //material: 0,    // Threejs ignores these?
-    //extrudeMaterial: 1,
-  });
+    amount: part.thickness,
+  })
+    // Front face at z0, extruding toward -z
+    .translate(0, 0, -part.thickness);
 }
 
 const EASING = TWEEN.Easing.Cubic.Out;
@@ -42,13 +34,14 @@ export default function Assembly(cfg) {
     // Clean up old children, if any
     ob.meshGroup.children.forEach(ob.meshGroup.remove);
 
-    [...Array(5).keys()].forEach((i) => {
-
-      const path = ob.model.makeFacePath(i),
-            geom = toThreeGeom(path, ob.model.thickness);
+    ob.model.parts.map(part => {
+      const geom = toThreeGeom(part),
+            quat = new THREE.Quaternion(...part.rotation),
+            pos = new THREE.Vector3(...part.position)
 
       const m = new THREE.Matrix4();
-      m.set(...ob.model.transform3D(i));
+      m.makeRotationFromQuaternion(quat);
+      m.setPosition(pos);
       geom.applyMatrix(m);
 
       geom.computeBoundingBox();

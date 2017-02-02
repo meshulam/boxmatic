@@ -1,5 +1,5 @@
 import BoxMaker from './boxmaker';
-import {toSvg} from './util/svgExport';
+import {layoutSvg} from './util/svgExport';
 
 export default function SaveForm(cfg) {
   const ob = {
@@ -14,8 +14,8 @@ export default function SaveForm(cfg) {
           downloadSvg = ob.el.querySelector('[data-action="downloadSvg"]');
 
     const bom = BoxMaker(state);
-    const faces = bom.makeFaces2D();
-    const svgString = toSvg(faces);
+    const shapes = bom.parts.map(part => part.shape);
+    const svgString = layoutSvg(shapes);
 
     previewContainer.innerHTML = svgString;
     downloadSvg.href = 'data:image/svg+xml,' + svgString;

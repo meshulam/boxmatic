@@ -1,8 +1,8 @@
 import TWEEN from 'tween.js';
 import OrbitControls from './three/orbitControls';
 import CheckerPlane from './three/checkerPlane';
+import Assembly from './three/assembly';
 import './three/polyfills';
-import Assembly from './assembly';
 
 import Store from './store';
 import BoxMaker from './boxmaker';

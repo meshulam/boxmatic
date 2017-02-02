@@ -1,19 +1,13 @@
 import { norm } from './util/dimension';
+import { toShape } from './util/path';
 import Paper from './geom/paper';
+import { Part, ROTATION } from './geom/part';
 
 //const PaperScope = paper.
 // Internal constants for making iterating over faces easier
 const EDGE_SOLO = 0,
       EDGE_UNDER = 1,
       EDGE_OVER = 2
-
-export const FACE_FRONT = 0,
-      FACE_BACK = 1,
-      FACE_LEFT = 2,
-      FACE_RIGHT = 3,
-      FACE_BOTTOM = 4,
-      FACE_TOP = 5
-
 
 function fromPaperPath(path) {
   if (!(path.closed &&
@@ -39,44 +33,101 @@ function fromPaperPath(path) {
  */
 export default function BoxMaker(cfg) {
   const ob = {
-    dimL: norm(cfg.dimL),
-    dimW: norm(cfg.dimW),
-    dimH: norm(cfg.dimH),
+    dimW: norm(cfg.dimW),   // x
+    dimH: norm(cfg.dimH),   // y
+    dimL: norm(cfg.dimL),   // z
     thickness: norm(cfg.thickness),
+    parts: [],
   };
   ob.toothWidth = norm(cfg.toothWidth) || ob.thickness*2
 
   /*
-   * 'edges' is an array of four EDGE_* constant values, corresponding
-   * to the bottom, right, top, left edges of this face.
+   * return an array containing the part config for each part in the
+   * assembly. Each of these gets passed to the builder.
+   *
+   * normal: normal vec of the front plane of the sheet
+   * origin: location in 3D assembly space for the part's origin (front face)
+   * edges: looking at the front face, BRTL TRBL-ordered list of edge types
    */
-  function makeFaceInternal(width, height, edges) {
+  ob.partConfigs = function() {
+    return [
+      {
+        id: 'face-front',
+        width: ob.dimW,
+        height: ob.dimH,
+        rotation: ROTATION.FRONT,
+        origin: [-ob.dimW/2, 0, ob.dimL/2],
+        edges: [ EDGE_UNDER, EDGE_OVER, EDGE_SOLO, EDGE_OVER ],
+      },
+      {
+        id: 'face-back',
+        width: ob.dimW,
+        height: ob.dimH,
+        rotation: ROTATION.BACK,
+        origin: [ob.dimW/2, 0, -ob.dimL/2],
+        edges: [ EDGE_UNDER, EDGE_OVER, EDGE_SOLO, EDGE_OVER ],
+      },
+      {
+        id: 'face-left',
+        width: ob.dimL,
+        height: ob.dimH,
+        rotation: ROTATION.LEFT,
+        origin: [-ob.dimW/2, 0, -ob.dimL/2],
+        edges: [ EDGE_UNDER, EDGE_UNDER, EDGE_SOLO, EDGE_UNDER ],
+      },
+      {
+        id: 'face-right',
+        width: ob.dimL,
+        height: ob.dimH,
+        rotation: ROTATION.RIGHT,
+        origin: [ob.dimW/2, 0, ob.dimL/2],
+        edges: [ EDGE_UNDER, EDGE_UNDER, EDGE_SOLO, EDGE_UNDER ],
+      },
+      {
+        id: 'face-bottom',
+        width: ob.dimW,
+        height: ob.dimL,
+        rotation: ROTATION.BOTTOM,
+        origin: [-ob.dimW/2, 0, -ob.dimL/2],
+        edges: [ EDGE_OVER, EDGE_OVER, EDGE_OVER, EDGE_OVER ],
+      },
+    ]
+  }
+
+  ob.update = function() {
+    ob.parts = ob.partConfigs().map(pc => ob.makePart(pc));
+  }
+
+  ob.makePart = function(pc) {
     const origFace = new Paper.Path.Rectangle({
       point: [0, 0],
-      size: [width, height],
-    });
+      size: [pc.width, pc.height],
+    })
 
-    const teethFace = edges.reduce((face, edgeType, i) => {
-      const distance = (i % 2 === 0) ? width : height;
+    const teethFace = pc.edges.reduce((face, edgeType, i) => {
+      const distance = (i % 2 === 0) ? pc.width : pc.height;
       const edgeTeeth = genTeethCutout(distance, edgeType);
 
       // TODO: matrix composition seems backwards?
       const edgeTransform = new Paper.Matrix()
         .translate(
-          (i===1 || i===2) ? width : 0,
-          (i > 1)          ? height: 0
+          (i===1 || i===2) ? pc.width : 0,
+          (i > 1)          ? pc.height: 0
         )
         .rotate(90*i, 0, 0);
-      console.log('transform: ', edgeTransform, 'i: ', i);
 
       return edgeTeeth.reduce((face2, tooth) => {
         tooth.transform(edgeTransform);
-        console.log("Subtracting tooth: ", tooth.bounds)
         return face2.subtract(tooth);
       }, face)
     }, origFace);
 
-    return fromPaperPath(teethFace);
+    return Part({
+      shape: toShape(teethFace),
+      thickness: ob.thickness,
+      rotation: pc.rotation,
+      position: pc.origin,
+    })
   }
 
   function genTeethCutout(distance, edgeType) {
@@ -102,113 +153,7 @@ export default function BoxMaker(cfg) {
     return teeth;
   }
 
-  ob.makeFaces2D = function() {
-    return [0, 1, 2, 3, 4]
-      .map(i => {
-        const path = ob.makeFacePath(i);
-        return Path.transform(path, ob.transform2D(i));
-      });
-  }
-
-  ob.makeFacePath = function(ind) {
-    if (ind < 2)    // Front/back face
-      return makeFaceInternal(ob.dimW, ob.dimH,
-        [EDGE_UNDER, EDGE_OVER, EDGE_SOLO, EDGE_OVER]);
-
-    if (ind < 4)    // Left/right face
-      return makeFaceInternal(ob.dimL, ob.dimH,
-        [EDGE_UNDER, EDGE_UNDER, EDGE_SOLO, EDGE_UNDER]);
-
-    if (ind < 5)    // Bottom face
-      return makeFaceInternal(ob.dimW, ob.dimL,
-        [EDGE_OVER, EDGE_OVER, EDGE_OVER, EDGE_OVER]);
-
-    throw new Error("Face ID out of range: " + ind);
-  }
-
-  // Returns a 6-element transform matrix for laying out
-  // the given part on a sheet.
-  // Layout each pair of parts on a row:
-  //  [Front] [Back]
-  //  [Left] [Right]
-  //  [Bottom]
-  ob.transform2D = function(ind, spacing=ob.thickness*2) {
-    let xOff, yOff;
-    switch (ind) {
-      case FACE_FRONT:
-        xOff = spacing;
-        yOff = spacing;
-        break;
-      case FACE_BACK:
-        xOff = 2*spacing + ob.dimW;
-        yOff = spacing;
-        break;
-      case FACE_LEFT:
-        xOff = spacing;
-        yOff = 2*spacing + ob.dimH;
-        break;
-      case FACE_RIGHT:
-        xOff = 2*spacing + ob.dimL;
-        yOff = 2*spacing + ob.dimH;
-        break;
-      case FACE_BOTTOM:
-        xOff = spacing;
-        yOff = 3*spacing + 2*ob.dimH;
-        break;
-      case FACE_TOP:
-        xOff = 2*spacing + ob.dimW;
-        yOff = 3*spacing + 2*ob.dimH;
-        break;
-    }
-
-    return [
-      1, 0,
-      0, 1,
-      xOff, yOff
-    ];
-  }
-
-  ob.transform3D = function(ind) {
-    const xOff = -ob.dimW/2,
-          yOff = 0,
-          zOff = ob.dimL/2
-
-    switch (ind) {
-      case FACE_FRONT:
-        return [
-          1, 0, 0, xOff,
-          0, 1, 0, yOff,
-          0, 0, 1, zOff-ob.thickness
-        ];
-      case FACE_BACK:
-        return [
-          1, 0, 0, xOff,
-          0, 1, 0, yOff,
-          0, 0, 1, zOff-ob.dimL
-        ];
-      case FACE_LEFT:
-        return [
-          0, 0, 1, xOff,
-          0, 1, 0, yOff,
-         -1, 0, 0, zOff
-        ];
-      case FACE_RIGHT:
-        return [
-          0, 0, 1, xOff+ob.dimW-ob.thickness,
-          0, 1, 0, yOff,
-         -1, 0, 0, zOff
-        ];
-      case FACE_BOTTOM:
-        return [
-          1, 0, 0, xOff,
-          0, 0, 1, yOff,
-          0, -1, 0, zOff
-        ];
-      default:
-        throw new Error(`Unknown index: ${ind}`);
-    }
-  }
-
+  ob.update();
   return ob;
 }
 
