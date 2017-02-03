@@ -1,10 +1,10 @@
 import { norm } from './util/dimension';
 import Shape from './geom/shape';
-import Paper from './geom/paper';
 import { Part, ROTATION } from './geom/part';
 import Pt from './geom/pt';
-
-//const PaperScope = paper.
+import Path from './geom/path';
+import Rect from './geom/rect';
+import Matrix2 from './geom/matrix2';
 
 const EDGE_SOLO = 0,
       EDGE_UNDER = 1,
@@ -32,6 +32,7 @@ export default function BoxMaker(cfg) {
     thickness: norm(cfg.thickness),
     parts: [],
     handles: cfg.handles || HANDLES.ALL,
+    fillet: cfg.fillet || 0,
     handleSize: Pt(110, 35)
   };
   ob.toothWidth = norm(cfg.toothWidth) || ob.thickness*2
@@ -100,30 +101,25 @@ export default function BoxMaker(cfg) {
 
   // Return a Paper Path for a hole to cut out from a part
   ob.handlePath = function(pc) {
-    const rect = new Paper.Rectangle(
+    const radius = Math.min(ob.handleSize.x, ob.handleSize.y) / 2;
+
+    return Rect(
       pc.width/2-ob.handleSize.x/2,   // centering in x
       pc.height-ob.thickness*1.5,     // start 1.5x thickness below the top
       ob.handleSize.x,
       -ob.handleSize.y
     );
-
-    const radius = Math.min(ob.handleSize.x, ob.handleSize.y) / 2;
-
-    return new Paper.Path.Rectangle(rect, new Paper.Size(radius, radius));
   }
 
   ob.makePart = function(pc) {
-    const origFace = new Paper.Path.Rectangle({
-      point: [0, 0],
-      size: [pc.width, pc.height],
-    })
+    const origFace = Rect(0, 0, pc.width, pc.height);
 
     let finishedFace = pc.edges.reduce((face, edgeType, i) => {
       const distance = (i % 2 === 0) ? pc.width : pc.height;
       const edgeTeeth = genTeethCutout(distance, edgeType);
 
       // TODO: matrix composition seems backwards?
-      const edgeTransform = new Paper.Matrix()
+      const edgeTransform = Matrix2()
         .translate(
           (i===1 || i===2) ? pc.width : 0,
           (i > 1)          ? pc.height: 0
@@ -141,6 +137,10 @@ export default function BoxMaker(cfg) {
         (pc.height > ob.handleSize.y + 2*ob.thickness)) {
 
       finishedFace = finishedFace.subtract(ob.handlePath(pc));
+    }
+
+    if (ob.fillet > 0) {
+      finishedFace = Path.fillet(finishedFace, ob.fillet);
     }
 
     return Part({
@@ -161,10 +161,7 @@ export default function BoxMaker(cfg) {
     const realWidth = distance / numTeeth;
     const startInd = (edgeType === EDGE_OVER) ? 0 : 1;
 
-    const baseTooth = Paper.Path.Rectangle({
-      point: [0, 0],
-      size: [realWidth, ob.thickness],
-    });
+    const baseTooth = Rect(0, 0, realWidth, ob.thickness);
 
     const teeth = [];
     for (let i=startInd; i<numTeeth; i+=2) {

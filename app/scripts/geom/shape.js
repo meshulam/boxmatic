@@ -1,6 +1,9 @@
 import Paper from './paper';
 import Pt from './pt';
 
+/**
+ *  "Stamped" 2D shape
+ */
 export default function Shape(cfg) {
   const ob = {
     outline: cfg.outline,
