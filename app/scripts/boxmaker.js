@@ -31,7 +31,7 @@ export default function BoxMaker(cfg) {
     dimL: norm(cfg.dimL),   // z
     thickness: norm(cfg.thickness),
     parts: [],
-    handles: cfg.handles || HANDLES.ALL,
+    handles: cfg.handles || HANDLES.SIDES,
     fillet: cfg.fillet || 0,
     handleSize: Pt(110, 35)
   };
@@ -107,7 +107,8 @@ export default function BoxMaker(cfg) {
       pc.width/2-ob.handleSize.x/2,   // centering in x
       pc.height-ob.thickness*1.5,     // start 1.5x thickness below the top
       ob.handleSize.x,
-      -ob.handleSize.y
+      -ob.handleSize.y,
+      radius
     );
   }
 

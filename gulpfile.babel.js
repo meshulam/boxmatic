@@ -54,7 +54,7 @@ gulp.task('serve', ['styles', 'scripts'], function() {
 });
 
 // Serve prod from the dist dir
-gulp.task('serve:dist', ['default'], function() {
+gulp.task('serve:prod', ['default'], function() {
   browserSync({
     notify: false,
     scrollElementMapping: ['main', '.mdl-layout'],
@@ -131,7 +131,7 @@ const testWatcher = watchify(browserify(TEST_OPTS));
 testWatcher.name = 'testWatcher';
 testWatcher.on('update', () => bundle(testWatcher));
 
-gulp.task('test-browser', ['clean'], function() {
+gulp.task('serve:test', ['clean'], function() {
   return bundle(testWatcher)
     .on('finish', () => {
       browserSync({
