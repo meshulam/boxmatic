@@ -1,12 +1,11 @@
 import TWEEN from 'tween.js';
-import {svgToThreeShape} from '../util/path';
 
 // Represents a 3D assembly in three.js
 //
 
 function toThreeGeom(part) {
-  const shape = svgToThreeShape(part.shape.outline);
-  shape.holes = part.shape.holes.map(svgToThreeShape);
+  const shape = THREE.MM.svgToShape(part.shape.outline);
+  shape.holes = part.shape.holes.map(THREE.MM.svgToShape);
 
   return new THREE.ExtrudeGeometry(shape, {
     bevelEnabled: false,

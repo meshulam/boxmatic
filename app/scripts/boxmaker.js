@@ -1,11 +1,11 @@
 import { norm } from './util/dimension';
-import { toShape } from './util/path';
+import Shape from './geom/shape';
 import Paper from './geom/paper';
 import { Part, ROTATION } from './geom/part';
-import pt from './geom/pt';
+import Pt from './geom/pt';
 
 //const PaperScope = paper.
-// Internal constants for making iterating over faces easier
+
 const EDGE_SOLO = 0,
       EDGE_UNDER = 1,
       EDGE_OVER = 2
@@ -32,7 +32,7 @@ export default function BoxMaker(cfg) {
     thickness: norm(cfg.thickness),
     parts: [],
     handles: cfg.handles || HANDLES.ALL,
-    handleSize: pt(110, 35)
+    handleSize: Pt(110, 35)
   };
   ob.toothWidth = norm(cfg.toothWidth) || ob.thickness*2
 
@@ -144,7 +144,7 @@ export default function BoxMaker(cfg) {
     }
 
     return Part({
-      shape: toShape(finishedFace),
+      shape: Shape.fromPath(finishedFace),
       thickness: ob.thickness,
       rotation: pc.rotation,
       position: pc.origin,
