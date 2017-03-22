@@ -6,3 +6,4 @@ visualizing and customizing physical products.
 
 Live demo: <http://matt.meshul.am/boxmatic/>
 
+![screenshot](screenshot.png)
