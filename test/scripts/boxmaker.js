@@ -1,7 +1,6 @@
 import test, { doubleEq } from './base';
 
 import BoxMaker from '../../app/scripts/boxmaker';
-import * as Path from '../../app/scripts/util/path';
 
 const FACE_FRONT = 0; // TODO: export these
 
